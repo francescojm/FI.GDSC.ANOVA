@@ -4,7 +4,7 @@
 \alias{gdscANOVA_cohens_d}
 \title{Effect Size through Cohen's D}
 \usage{
-Ra fes de mamt
+to edit
 }
 \description{
 \code{gdscANOVA_cohens_d(x,y)} returns the effect size of the interaction between the values in the set given by the union of x and y and the factor inducing the dychotomy \eqn{{x,y}} onto it
