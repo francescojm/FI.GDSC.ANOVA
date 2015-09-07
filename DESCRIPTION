@@ -1,0 +1,9 @@
+Package: FI.GDSC.ANOVA
+Type: Statistics, data manipulation, visualization and result summary
+Title: Analysis of Variance to identify interaction between genomic features and drug response.
+Version: 1.0
+Date: 2015-09-07
+Author: Francesco Iorio
+Maintainer: Francesco Iorio <iorio@ebi.ac.uk>
+Description: Scripts and R functions used to perform Analysis of Variance on the GDSC1000 data, thus to identify statistical interactions between genomic features and drug response, and produce formatted results and figures
+License: Apache 2.0
