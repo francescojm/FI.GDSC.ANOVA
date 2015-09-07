@@ -13,11 +13,7 @@ library(roxygen2)
 #' @description
 #' \code{gdscANOVA_cohens_d(x,y)} returns the effect size of the interaction between the values in the set given by the union of x and y and the factor inducing the dychotomy \eqn{{x,y}} onto it 
 #'
-#' @usage
-#' to edit
-#' 
-
-
+#' @seealso gdscANOVA_glass_Ds
 gdscANOVA_cohens_d <- function(x, y) {
   lx <- length(x)- 1
   ly <- length(y)- 1
