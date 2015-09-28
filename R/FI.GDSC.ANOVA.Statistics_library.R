@@ -100,7 +100,7 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
       }
     }
     
-    tfit<-t.test(IC50pattern~FEATpattern)
+    tfit<-t.test(IC50pattern~FEATpattern,var.equal = TRUE)
     
     if (display){
       gdscANOVA_scatterSets(IC50pattern,FEATpattern,DRUG_ID=DRUG_ID,FEATURE=FEATURE)
@@ -253,3 +253,105 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
   
   return(RES)  
 }
+
+gdscANOVA_singleDrugANOVA<-function(DRUG_ID,verbose=TRUE){
+  
+  FEATURES<-names(which(rowSums(InputFeatures$BEM)>=3))
+  nFEATURES<-length(FEATURES)
+  
+  if(verbose){
+    print(paste('Running Single Drug ANOVA:',DRUG_ID,' - ',DRUG_PROPS[DRUG_ID,"DRUG_NAME"],' [',DRUG_PROPS[DRUG_ID,"PUTATIVE_TARGET"],']',sep=''))
+    pb <- txtProgressBar(min=1,max=nFEATURES,style=3)
+  }
+  
+  for (i in 1:nFEATURES){
+    
+    if(verbose){
+      setTxtProgressBar(pb, i)
+    }
+    if (i ==1){
+      TOTRES<-gdscANOVA_individualANOVA(DRUG_ID=DRUG_ID,FEATURE=FEATURES[i],display=FALSE)
+    } else{
+      TOTRES<-rbind(TOTRES,gdscANOVA_individualANOVA(DRUG_ID=DRUG_ID,FEATURE=FEATURES[i],display=FALSE))
+    }
+  }
+  
+  idxs<-which(!is.na(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])))
+  
+  TOTRES<-TOTRES[idxs,]
+  
+  if (length(idxs)==1){
+    TOTRES<-matrix(TOTRES,1,length(TOTRES),dimnames=list(1,names(TOTRES)))
+  }
+  
+  
+  if(verbose){
+    Sys.sleep(1)
+    close(pb)
+  }
+  
+  
+  
+  return(TOTRES)
+}
+gdscANOVA_totalANOVA<-function(fn){
+  
+  DRUGS<-names(which(colSums(!is.na(IC50s))>=6))
+  
+  nDRUGS<-length(DRUGS)
+  
+  print('+ Running ANOVA')
+  pb <- txtProgressBar(min=1,max=nDRUGS,style=3)
+  
+  flag<-1
+  
+  for (i in 1:nDRUGS){
+    
+    setTxtProgressBar(pb, i)
+    currentRES<-gdscANOVA_singleDrugANOVA(DRUGS[i],verbose=FALSE)
+    
+    if (flag == 1 & ncol(currentRES)>0){
+      TOTRES<-currentRES
+      flag<-0
+    } else{
+      if (ncol(currentRES)>0){
+        TOTRES<-rbind(TOTRES,currentRES)
+      }
+    }
+    if (i%%50==0){
+      write.table(TOTRES,quote=FALSE,row.names=F,sep='\t',file=paste(fn,'.txt',sep=''))
+    }
+  }
+  
+  TOTRES<-TOTRES[order(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])),]
+  
+  if(gdscANOVA.settings.pval_correction_method!='qvalue'){
+    FDR<-p.adjust(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"]),method='fdr')
+  }else{
+    Q<-qvalue(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"]))
+    FDR<-Q$qvalue
+  }
+  
+  TOTRES<-cbind(TOTRES,FDR*100)
+  colnames(TOTRES)[ncol(TOTRES)]<-'ANOVA FEATURE FDR %'
+  
+  assoc_id<-paste('a',1:nrow(TOTRES),sep='')
+  
+  TOTRES<-cbind(assoc_id,TOTRES)
+  
+  colnames(TOTRES)[1]<-'assoc_id'
+  
+  write.table(TOTRES,quote=FALSE,row.names=F,sep='\t',file=paste(fn,'.txt',sep=''))
+  
+  save(TOTRES,file=paste(fn,'.rdata',sep=''))
+  
+  if(length(range)>1){
+    Sys.sleep(1)
+    close(pb)
+  }
+  
+  return(TOTRES)
+}
+
+
+

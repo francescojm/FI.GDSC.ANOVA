@@ -1,11 +1,11 @@
 ## ANOVA paths and filenames
 
-annotations.master_list.fn<-'../../Data/Cell_lines/Annotations/MASTER_LIST_EXTENDED_INFOS.rdata'
+annotations.master_list.fn<-'../../Data/Cell_lines/Annotations/MASTER_LIST_20150115.rdata'
 annotations.cosmic2sampleMap.fn<-'../../Data/Cell_lines/Annotations/DanielCosmic2sampleNames.rdata'
 
 gdscANOVA.screening.fn<-'../../Data/DrugScreening/simplyIC50s-Final-RMSE-Filtered-0.3.rdata'
 gdscANOVA.screening.DRcurves.fn<-'../../Data/DrugScreening/DoseResponseCurves.rdata'
-gdscANOVA.additionalFeatures.fn<-'../../Data/DR.Lancet/Cluster_BEMs/20150925//COREAD.rdata'
+#gdscANOVA.additionalFeatures.fn<-'../../Data/DR.Lancet/Cluster_BEMs/20150925//COREAD.rdata'
 gdscANOVA.results.dir<-'../../Results/DR.Lancet/ANOVA/'
 gdscANOVA.cellLineFeatures.dir<-'../../Data/Cell_lines/MultiOmicBEMs/'
 
@@ -20,21 +20,21 @@ gdscANOVA.cellLineFeatures.fn_suffix<-'_simple_MOBEM.rdata'
 ## ANOVA settings
 gdscANOVA.settings.SCREENING_VERSION<-paste('v17 - up to',Sys.Date())
 gdscANOVA.settings.DRUG_domain<-"GDSC1000_paper_set"
-gdscANOVA.settings.CELL_LINES<-'COREAD'
-gdscANOVA.settings.includeMSI_Factor<-TRUE
+#gdscANOVA.settings.CELL_LINES<-'COREAD'
+#gdscANOVA.settings.includeMSI_Factor<-TRUE
 gdscANOVA.settings.analysisType<-'CS'
 gdscANOVA.settings.additionalFeatures<-TRUE
-gdsdANOVA.settings.additionalFeaturesOnly<-FALSE
+gdsdANOVA.settings.additionalFeaturesOnly<-TRUE
 gdscANOVA.settings.excludeHyperMetData<-TRUE
 gescANOVA.settings.oneGeneOnly<-NULL
-gdscANOVA.settings.resPackageHeader<-'DR.Lancet Project ANOVA COREAD specific result package'
+gdscANOVA.settings.resPackageHeader<-paste('DR.Lancet Project ANOVA',gdscANOVA.settings.CELL_LINES,'specific result package')
 gdscANOVA.settings.resPackageIncludeSangerLogo<-FALSE
 gdscANOVA.settings.resPackageIncludeNKILogo<-FALSE
 gdscANOVA.settings.resPackageIncludeEBIlogo<-TRUE
 gdscANOVA.settings.featFactorPopulationTh<-3
 gdscANOVA.settings.MSIfactorPopulationTh<-2
 
-gdscANOVA.settings.pval_correction_method<-'qvalue'
+gdscANOVA.settings.pval_correction_method<-'fdr'
 
 if (gdscANOVA.settings.CELL_LINES == 'PANCAN'){
   gdscANOVA.settings.pval_TH<-Inf  

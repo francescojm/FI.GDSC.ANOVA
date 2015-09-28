@@ -146,8 +146,19 @@ gdscANOVA_createInputFeatures<-function(additional_features=NULL,additional_feat
   if(additional_features_only){
     BEM<-additional_features
   }else{
+    
+    idMissingInAddFeat<-setdiff(colnames(TOTALBEM),colnames(additional_features))
+    
+    toAdd<-matrix(0,nrow = nrow(BEM),ncol = length(idMissingInAddFeat),
+                  dimnames = list(rownames(BEM),idMissingInAddFeat))
+    
+    additional_features<-cbind(additional_features,toAdd)
+    
     additional_features<-additional_features[,colnames(TOTALBEM)]
+    
     BEM<-rbind(TOTALBEM,additional_features)  
+  
+    
   }
   
   rownames(BEM)<-str_replace_all(rownames(BEM),pattern = ':',replacement = '_')
@@ -217,7 +228,7 @@ gdscANOVA_createInputFeatures<-function(additional_features=NULL,additional_feat
 
 gdscANOVA_createTissueVariable<-function(CID){
   
-  TISSUE_VARIABLE<-MASTER_LIST$GDSC.description_1
+  TISSUE_VARIABLE<-as.character(MASTER_LIST$GDSC.description_1)
   names(TISSUE_VARIABLE)<-rownames(MASTER_LIST)
   
   TISSUE_VARIABLE[which(TISSUE_VARIABLE=='digestive_system')]<-MASTER_LIST$GDSC.description_2[which(TISSUE_VARIABLE=='digestive_system')]

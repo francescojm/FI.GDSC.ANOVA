@@ -15,13 +15,14 @@ library(djvMixedIC50)
 library(scales)
 cat('\n+ Done!\n\n')
 
-cat('- Running gdscANOVA preamble (loading R objects, setting paths and file names)')
-source('R/FI.GDSC.ANOVA.Preamble.R')
-cat('\n+ Done!\n\n')
+#cat('- Running gdscANOVA preamble (loading R objects, setting paths and file names)')
+#source('R/FI.GDSC.ANOVA.Preamble.R')
+#cat('\n+ Done!\n\n')
 
 cat('\n\n- Loading gdscANOVA functions for Data Manipulations and Statistics...')
 source('R/FI.GDSC.ANOVA.DataManipulation_library.R')
 source('R/FI.GDSC.ANOVA.Statistics_library.R')
+source('R/FI.GDSC.ANOVA.UserInteraction.R')
 cat('\n+ Done!\n\n')
 
 TIME<-str_replace_all(TIME,'[:]','-')
@@ -60,16 +61,18 @@ InputFeatures<-gdscANOVA_createInputFeatures(additional_features=gdscANOVA.addit
                                               excludeHyperMetData = gdscANOVA.settings.excludeHyperMetData,
                                               additional_features_only = gdsdANOVA.settings.additionalFeaturesOnly)
 cat('\n+ Done!\n\n')
-# 
-# save(InputFeatures,file=paste(INPUT_DIR,'InputFeatures.rdata',sep=''))
-# save(IC50s,file=paste(INPUT_DIR,'IC50s.rdata',sep=''))
-# 
-# DIAGNOSTICS<-gdscANOVA_diagnostics()
-# 
-# gdscANOVA_create_systemInfos()
-# 
-# 
-# 
+ 
+save(InputFeatures,file=paste(INPUT_DIR,'InputFeatures.rdata',sep=''))
+save(IC50s,file=paste(INPUT_DIR,'IC50s.rdata',sep=''))
+ 
+DIAGNOSTICS<-gdscANOVA_diagnostics()
+ 
+gdscANOVA_create_systemInfos()
 
+TOTRES<-gdscANOVA_totalANOVA(fn=paste(OUTPUT_DIR,'ANOVA_results',sep=''))
+
+write.table(TOTRES,quote=FALSE,row.names=F,sep='\t',file=paste(OUTPUT_DIR,'ANOVA_results','.txt',sep=''))
+
+save(TOTRES,file=paste(OUTPUT_DIR,'ANOVA_results','.rdata',sep=''))
 
 
