@@ -1,7 +1,9 @@
 
+
+library(stringr)
 CancerTypes<-dir('../../Data//DR.Lancet//Cluster_BEMs//20150925/')
 CancerTypes<-unlist(str_split(CancerTypes,'.rdata'))[seq(1,length(CancerTypes)*2,2)]
-CancerTypes<-setdiff(CancerTypes,c('CESC','ESCA','MESO','GBM'))
+CancerTypes<-setdiff(CancerTypes,c('CESC','ESCA','MESO','GBM','HNSC','KIRC','LUAD','PAAD'))
 
 
 load('../../Data/Cell_lines/Annotations/IncludeMSIfactor.rdata')

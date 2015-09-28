@@ -23,7 +23,7 @@ gdscANOVA.settings.DRUG_domain<-"GDSC1000_paper_set"
 #gdscANOVA.settings.CELL_LINES<-'COREAD'
 #gdscANOVA.settings.includeMSI_Factor<-TRUE
 gdscANOVA.settings.analysisType<-'CS'
-gdscANOVA.settings.additionalFeatures<-TRUE
+#gdscANOVA.settings.additionalFeatures<-TRUE
 gdsdANOVA.settings.additionalFeaturesOnly<-TRUE
 gdscANOVA.settings.excludeHyperMetData<-TRUE
 gescANOVA.settings.oneGeneOnly<-NULL
