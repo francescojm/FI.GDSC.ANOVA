@@ -46,7 +46,6 @@ gdscANOVA_glass_Ds<-function(x,y){
 #'            gdscANOVA.settings.includeMSI_Factor = Boolean variable specifying if the Microsatellite instability status of the samples should be included as co-factor
 #'            gdscANOVA.settings.MSIfactorPopulationTh = How many MicroSatellite instable samples must be present in order for the test to be performed
 #'            
-
 gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALSE,PATH='',FN='',FDR=NA,OUTPUT_PATH=''){
   
   if (printTOfig){
