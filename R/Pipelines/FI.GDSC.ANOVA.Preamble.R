@@ -1,13 +1,16 @@
 ## ANOVA paths and filenames
 
 annotations.master_list.fn<-'../../Data/Cell_lines/Annotations/MASTER_LIST_20150115.rdata'
-annotations.cosmic2sampleMap.fn<-'../../Data/Cell_lines/Annotations/DanielCosmic2sampleNames.rdata'
+#annotations.cosmic2sampleMap.fn<-'../../Data/Cell_lines/Annotations/DanielCosmic2sampleNames.rdata'
 
-gdscANOVA.screening.fn<-'../../Data/DrugScreening/simplyIC50s-Final-RMSE-Filtered-0.3.rdata'
+gdscANOVA.screening.fn<-'../../Data/DrugScreening/September2015/simplyIC50s-Final-RMSE-Filtered-0.3.rdata'
 gdscANOVA.screening.DRcurves.fn<-'../../Data/DrugScreening/DoseResponseCurves.rdata'
-#gdscANOVA.additionalFeatures.fn<-'../../Data/DR.Lancet/Cluster_BEMs/20150925//COREAD.rdata'
-gdscANOVA.results.dir<-'../../Results/DR.Lancet/ANOVA/'
 gdscANOVA.cellLineFeatures.dir<-'../../Data/Cell_lines/MultiOmicBEMs/'
+gdscANOVA.additionalFeatures.fn<-'../../Data/DR.Lancet/Cluster_BEMs/20150925//COREAD.rdata'
+
+
+gdscANOVA.results.dir<-'../../Results/DR.Lancet/ANOVA/'
+
 
 gdscANOVA.maxTestedConc.fn<-'../../Data/DrugScreening/maximalTestedConcentrations.rdata'
 gdscANOVA.drugProperties.fn<-'../../Data/DrugScreening/v17_DRUG_PROPS_01072014.rdata'
