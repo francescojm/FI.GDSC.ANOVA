@@ -8,8 +8,8 @@
 
 ## data manipulation
 gdscANOVA_diagnostics<-function(){
-  featFactorPopulationTh=gdscANOVA.settings.featFactorPopulationTh
-  MSIfactorPopulationTh=gdscANOVA.settings.MSIfactorPopulationTh
+  featFactorPopulationTh=GDSCANOVA_SETTINGS$gdscANOVA.settings.featFactorPopulationTh
+  MSIfactorPopulationTh=GDSCANOVA_SETTINGS$gdscANOVA.settings.MSIfactorPopulationTh
   print('- Calculating the number of feasible tests...')
   
   drugs<-colnames(IC50s)
@@ -31,7 +31,7 @@ gdscANOVA_diagnostics<-function(){
     commonC<-commonC[!is.na(IC50s[commonC,drugs[d]])]
     
     IC50pattern<-IC50s[commonC,drugs[d]]
-    
+    names(IC50pattern)<-commonC
     
     commonC<-commonC[!is.na(IC50s[commonC,drugs[d]])]
     TISSUE_FACTOR<-InputFeatures$TISSUES[commonC]
@@ -51,13 +51,13 @@ gdscANOVA_diagnostics<-function(){
       TISSUEpattern<-as.factor(TISSUE_FACTOR[names(IC50pattern)])
       MSIpattern<-as.factor(MSI_FACTOR[names(IC50pattern)])
       
-      if (gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
+      if (GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
             length(which(FEATpattern=='neg'))>=featFactorPopulationTh &
             length(which(MSIpattern==0))>=MSIfactorPopulationTh &
             length(which(MSIpattern==1))>=MSIfactorPopulationTh){
         feasibleTests<-feasibleTests+1
       } 
-      if (!gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
+      if (!GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
             length(which(FEATpattern=='neg'))>=featFactorPopulationTh){
         feasibleTests<-feasibleTests+1
       } 
@@ -82,21 +82,21 @@ gdscANOVA_create_systemInfos<-function(){
   ANALYSIS_SYSTEMS_INFOS$TIME<-TIME
   ANALYSIS_SYSTEMS_INFOS$USER<-SYSINFO[7]
   ANALYSIS_SYSTEMS_INFOS$MACHINE<-SYSINFO[4]
-  ANALYSIS_SYSTEMS_INFOS$SCREENING_VERSION<-gdscANOVA.settings.SCREENING_VERSION
-  ANALYSIS_SYSTEMS_INFOS$DRUG_DOMAIN<-gdscANOVA.settings.DRUG_domain
-  if(gdscANOVA.settings.CELL_LINES!='PANCAN'){
-    analysis_type<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  ANALYSIS_SYSTEMS_INFOS$SCREENING_VERSION<-GDSCANOVA_SETTINGS$gdscANOVA.settings.SCREENING_VERSION
+  ANALYSIS_SYSTEMS_INFOS$DRUG_DOMAIN<-GDSCANOVA_SETTINGS$gdscANOVA.settings.DRUG_domain
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES!='PANCAN'){
+    analysis_type<-paste(GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
-    analysis_type<-gdscANOVA.settings.CELL_LINES
+    analysis_type<-GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES
   }
   
   ANALYSIS_SYSTEMS_INFOS$CELL_LINES_DOMAIN<-analysis_type
-  ANALYSIS_SYSTEMS_INFOS$TISSUE_FACTOR<-gdscANOVA.settings.CELL_LINES=='PANCAN'
-  ANALYSIS_SYSTEMS_INFOS$MSI_FACTOR<-gdscANOVA.settings.includeMSI_Factor
+  ANALYSIS_SYSTEMS_INFOS$TISSUE_FACTOR<-GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'
+  ANALYSIS_SYSTEMS_INFOS$MSI_FACTOR<-GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor
   
-  ANALYSIS_SYSTEMS_INFOS$featFactorPopulationTh<-gdscANOVA.settings.featFactorPopulationTh
-  if(gdscANOVA.settings.includeMSI_Factor){
-    ANALYSIS_SYSTEMS_INFOS$MSI_FACTOR<-gdscANOVA.settings.MSIfactorPopulationTh
+  ANALYSIS_SYSTEMS_INFOS$featFactorPopulationTh<-GDSCANOVA_SETTINGS$gdscANOVA.settings.featFactorPopulationTh
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor){
+    ANALYSIS_SYSTEMS_INFOS$MSI_FACTOR<-GDSCANOVA_SETTINGS$gdscANOVA.settings.MSIfactorPopulationTh
   }else{
     ANALYSIS_SYSTEMS_INFOS$MSI_FACTOR<-NA
   }
@@ -111,18 +111,21 @@ gdscANOVA_create_systemInfos<-function(){
 }
 gdscANOVA_createDrugDataInput<-function(DRUG_DOMAIN,diagnostic=TRUE){
   
-  drugIdxs<-which(DRUG_BY_COMPANIES[,gdscANOVA.settings.DRUG_domain]==1)
+  drugIdxs<-which(DRUG_BY_COMPANIES[,DRUG_DOMAIN]==1)
   
   ndDomain<-length(drugIdxs)
   
   cat(paste(ndDomain,'drugs in the selected domain'))
   
-  drugIdxs<-drugIdxs[which(DRUG_BY_COMPANIES$dataAvailableInV17[drugIdxs]==1)]
+  drugIdxs<-drugIdxs[which(DRUG_BY_COMPANIES[drugIdxs,DRUG_DOMAIN]==1)]
   ndDomain<-length(drugIdxs)
   cat(paste(' of which ',ndDomain,' available in the current version of the screening',sep=''))
   
-  DRUGIDS<-as.character(DRUG_BY_COMPANIES$DRUG_ID[drugIdxs])
-  IC50s<-IC50s[,DRUGIDS]
+  DRUGIDS<-as.character(DRUG_BY_COMPANIES[drugIdxs,1])
+  
+  dids<-unlist(str_split(colnames(IC50s),'_'))[seq(1,ncol(IC50s)*2,2)]
+  
+  IC50s<-IC50s[,which(is.element(dids,DRUGIDS))]
   
   if (diagnostic){
     
@@ -149,8 +152,8 @@ gdscANOVA_createInputFeatures<-function(additional_features=NULL,additional_feat
     
     idMissingInAddFeat<-setdiff(colnames(TOTALBEM),colnames(additional_features))
     
-    toAdd<-matrix(0,nrow = nrow(BEM),ncol = length(idMissingInAddFeat),
-                  dimnames = list(rownames(BEM),idMissingInAddFeat))
+    toAdd<-matrix(0,nrow = nrow(TOTALBEM),ncol = length(idMissingInAddFeat),
+                  dimnames = list(rownames(TOTALBEM),idMissingInAddFeat))
     
     additional_features<-cbind(additional_features,toAdd)
     
@@ -243,6 +246,8 @@ gdscANOVA_createTissueVariable<-function(CID){
   
   return(TISSUE_VARIABLE)
 }
+
+
 
 my.compress_identical_patterns<-function(DATA){
   

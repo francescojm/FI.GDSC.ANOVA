@@ -1,4 +1,4 @@
-load(paste(MAIN_DIR,'SYSTEM_INFOS.rdata',sep=''))
+#load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,'SYSTEM_INFOS.rdata',sep=''))
 gdscANOVA_RP_copy_html_elements<-function(PATH){
   
   fl<-dir('HTML_templates_and_elements/images/')

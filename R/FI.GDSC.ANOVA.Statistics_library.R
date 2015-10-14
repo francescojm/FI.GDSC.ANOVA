@@ -6,7 +6,7 @@
 #                                                                         #
 ###########################################################################
 
-library(roxygen2)
+
 
 #' @title Effect Size through Cohen's D
 #' 
@@ -62,6 +62,8 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
   MSI_FACTOR<-InputFeatures$MSI_VARIABLE[commonC]
   
   IC50pattern<-IC50s[commonC,DRUG_ID]
+  names(IC50pattern)<-commonC
+  
   
   FEATpattern<-InputFeatures$BEM[FEATURE,commonC]
   
@@ -77,23 +79,23 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
   
   Y <- IC50pattern
     
-  featFactorPopulationTh<-gdscANOVA.settings.featFactorPopulationTh
-  MSIfactorPopulationTh<-gdscANOVA.settings.MSIfactorPopulationTh
+  featFactorPopulationTh<-GDSCANOVA_SETTINGS$gdscANOVA.settings.featFactorPopulationTh
+  MSIfactorPopulationTh<-GDSCANOVA_SETTINGS$gdscANOVA.settings.MSIfactorPopulationTh
   
-  A<-(gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
+  A<-(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
         length(which(FEATpattern=='neg'))>=featFactorPopulationTh &
         length(which(MSIpattern==0))>=MSIfactorPopulationTh &
         length(which(MSIpattern==1))>=MSIfactorPopulationTh)
   
-  B<-(!gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
+  B<-(!GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor & length(which(FEATpattern=='pos'))>=featFactorPopulationTh &
         length(which(FEATpattern=='neg'))>=featFactorPopulationTh)
   
   if (A | B){
     
-    if(gdscANOVA.settings.analysisType=='PANCAN'){
+    if(GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='PANCAN'){
       fit <- aov(Y ~ TISSUEpattern+MSIpattern+FEATpattern)  
     }else{
-      if(gdscANOVA.settings.includeMSI_Factor){
+      if(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor){
         fit <- aov(Y ~ MSIpattern+FEATpattern)
       }else{
         fit <- aov(Y ~ FEATpattern)
@@ -108,12 +110,12 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
     
     Y<-anova(fit)
     
-    if(gdscANOVA.settings.analysisType=='PANCAN'){
+    if(GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='PANCAN'){
       FEATURE_PVAL<-Y[3,5]
       MSI_PVAL<-Y[2,5]
       tissue_PVAL<-Y[1,5]
     }else{
-      if(gdscANOVA.settings.includeMSI_Factor){
+      if(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor){
         FEATURE_PVAL<-Y[2,5]
         MSI_PVAL<-Y[1,5]  
       }else{
@@ -220,7 +222,7 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
       dev.off()
     }
     
-    if(gdscANOVA.settings.CELL_LINES=='PANCAN'){
+    if(GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'){
       if (printTOfig){
         png(paste(PATH,FN,'_01_TissueWisk.png',sep=''),width=793.92,height=1122.24)
       }
@@ -231,7 +233,7 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
         dev.off()
       }
     }
-    if(gdscANOVA.settings.includeMSI_Factor){
+    if(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor){
       
       MSIpatternLit<-rep('MSI-stable',length(MSIpattern))
       names(MSIpatternLit)<-names(MSIpattern)
@@ -325,7 +327,7 @@ gdscANOVA_totalANOVA<-function(fn){
   
   TOTRES<-TOTRES[order(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])),]
   
-  if(gdscANOVA.settings.pval_correction_method!='qvalue'){
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_correction_method!='qvalue'){
     FDR<-p.adjust(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"]),method='fdr')
   }else{
     Q<-qvalue(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"]))
