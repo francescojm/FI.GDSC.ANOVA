@@ -260,10 +260,10 @@ gdscANOVA_volcanoPlot_T<-function(delta,pval,qvals,N,
   #   text(-XL-0.5,-log10(fdrLim001)+0.05,'FDR 0.01%',cex=0.7,col='gray')
   
   if (GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'){
-    legend('topleft',legend=(c('FDR 1%','FDR 10%','FDR 25%','p 0.001')),cex=1,lty=c(4,3,2,5),lwd=1.5,y.intersp=1.5,
+    legend('topleft',legend=(c('FDR 1%','FDR 10%',paste('FDR ',GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,'%',sep=''),'p 0.001')),cex=1,lty=c(4,3,2,5),lwd=1.5,y.intersp=1.5,
            col='gray',bty='n')  
   }else{
-    legend('topleft',legend=(c('FDR 1%','FDR 10%','FDR 25%','p 0.001')),cex=1,lty=c(4,3,2,5),lwd=1.5,y.intersp=1.5,
+    legend('topleft',legend=(c('FDR 1%','FDR 10%',paste('FDR ',GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,'%',sep=''),'p 0.001')),cex=1,lty=c(4,3,2,5),lwd=1.5,y.intersp=1.5,
            col='gray',bty='n')
   }
   
@@ -525,7 +525,7 @@ gdscANOVA_computeFeatureStats<-function(redTOTRES,fdrTH=30,pvalTH=Inf,save=TRUE,
             main=paste('Top-50 features most frequently\nassociated with drug response'))
     legend('bottomright',c('sensitivity','resistance'),fill=c('purple','orange'),cex=3,border=FALSE,bty='n')
     
-    text((max(as.numeric(subTOTAL[,"sens assoc"])+as.numeric(subTOTAL[,"res assoc"]))+10)/2,-5.5,'n. significant associations (fdr < 20%)',cex=3)
+    text((max(as.numeric(subTOTAL[,"sens assoc"])+as.numeric(subTOTAL[,"res assoc"]))+10)/2,-5.5,'n. significant associations',cex=3)
     if(printTOfig){
       dev.off()
     }
@@ -645,7 +645,7 @@ gdscANOVA_computeDrugStats<-function(redTOTRES,fdrTH=30,pvalTH=Inf,save=TRUE,dis
             main=paste('Top-50 drugs whose response\n is frequently associated with a feature'))
     legend('bottomright',c('sensitivity','resistance'),fill=c('purple','orange'),cex=3,border=FALSE,bty='n')
     
-    text((max(as.numeric(subTOTAL[,"sens assoc"])+as.numeric(subTOTAL[,"res assoc"]))+3)/2,-5.5,'n. significant associations (fdr < 20%)',cex=3)
+    text((max(as.numeric(subTOTAL[,"sens assoc"])+as.numeric(subTOTAL[,"res assoc"]))+3)/2,-5.5,'n. significant associations',cex=3)
     if(printTOfig){
       dev.off()
     }

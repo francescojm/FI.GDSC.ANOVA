@@ -1,6 +1,6 @@
 
 
-DRUG_DOMAIN<-'"All available in v18"'
+DRUG_DOMAIN<-'All available in v18'
 GDSC_SETTINGS_FILE_FOLDER<-'../../Data/ANOVA_setting_files/all_Analyses_Oct2015/'
 
 createIndividual_GDSCSettingFile<-function(ctype,useMsi){
@@ -22,7 +22,8 @@ createIndividual_GDSCSettingFile<-function(ctype,useMsi){
     gdscSettingsTemplate[20,2]<-'PANCAN'
   }
   
-  gdscSettingsTemplate[29,2]<-25
+  gdscSettingsTemplate[29,2]<-35
+  
   
   
   fn<-paste(ctype,'_',DRUG_DOMAIN,'_',Sys.Date(),'.csv',sep='')
@@ -39,6 +40,8 @@ CancerTypes<-setdiff(CancerTypes,c('UCEC','PRAD'))
 load('../../Data/Cell_lines/Annotations/IncludeMSIfactor.rdata')
 
 nCancerTypes<-length(CancerTypes)
+
+CancerTypes<-CancerTypes[3:length(CancerTypes)]
 
 for (i in 1:nCancerTypes){
   
