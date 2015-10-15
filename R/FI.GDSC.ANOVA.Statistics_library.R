@@ -141,10 +141,7 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
     EFFECTSIZE_IC50<-gdscANOVA_cohens_d(IC50pattern[FEATpattern=='pos'],IC50pattern[FEATpattern=='neg'])
     GLASS_d<-gdscANOVA_glass_Ds(IC50pattern[FEATpattern=='pos'],IC50pattern[FEATpattern=='neg'])
     
-    
-    
-    
-    maxC<-log(unique(maxConcTested[,DRUG_ID]))
+    maxC<-log(as.numeric(unique(maxConcTested[,DRUG_ID])))
     
     maxC<-maxC[which(!is.na(maxC))]
     
@@ -154,8 +151,9 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
     
     RES<-matrix(c(FEATURE,
                   DRUG_ID,
-                  as.character(DRUG_PROPS[DRUG_ID,"DRUG_NAME"]),
-                  as.character(DRUG_PROPS[DRUG_ID,"PUTATIVE_TARGET"]),
+                  DRUG_PROPS[str_split(DRUG_ID,'_')[[1]][1],"OWNED_BY"],    
+                  as.character(DRUG_PROPS[str_split(DRUG_ID,'_')[[1]][1],"DRUG_NAME"]),
+                  as.character(DRUG_PROPS[str_split(DRUG_ID,'_')[[1]][1],"PUTATIVE_TARGET"]),
                   Npos,Nneg,
                   maxC[1],maxC[2],
                   pos_IC50_MEAN,
@@ -167,9 +165,10 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
                   GLASS_d$g1,
                   GLASS_d$g2,
                   FEATURE_PVAL,tissue_PVAL,MSI_PVAL,
-                  FEATURE_IC50_WTT_pvalue),1,20,
+                  FEATURE_IC50_WTT_pvalue),1,21,
                 dimnames=list('1',c('FEATURE',
                                     'Drug id',
+                                    'Owned_by',
                                     'Drug name',
                                     'Drug Target',
                                     'N_FEATURE_pos','N_FEATURE_neg',
@@ -189,10 +188,12 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
     Nneg<-length(which(FEATpattern=='neg'))
     RES<-matrix(c(FEATURE,
                   DRUG_ID,
+                  DRUG_PROPS[str_split(DRUG_ID,'_')[[1]][1],"OWNED_BY"],
                   as.character(DRUG_PROPS[DRUG_ID,"DRUG_NAME"]),
                   as.character(DRUG_PROPS[DRUG_ID,"PUTATIVE_TARGET"]),Npos,Nneg,rep(NA,14)),
-                1,20,dimnames=list('1',c('FEATURE',
+                1,21,dimnames=list('1',c('FEATURE',
                                          'Drug id',
+                                         'Owned by',
                                          'Drug name',
                                          'Drug Target',
                                          'N_FEATURE_pos','N_FEATURE_neg',
@@ -212,7 +213,8 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
   
   
   if (display){
-    mtext(paste(DRUG_ID,' ',DRUG_PROPS[DRUG_ID,"DRUG_NAME"],' [',DRUG_PROPS[DRUG_ID,"PUTATIVE_TARGET"],'] \n ',FEATURE,sep=''),
+    drug_id<-str_split(DRUG_ID,'_')[[1]][1]
+    mtext(paste(DRUG_ID,' ',DRUG_PROPS[drug_id,"DRUG_NAME"],' [',DRUG_PROPS[drug_id,"PUTATIVE_TARGET"],'] \n ',FEATURE,sep=''),
           side = 3, line = -4, outer = TRUE,cex=1.5)
     
     plot(0,0,col=NA,xaxt='n',yaxt='n',frame.plot = FALSE,xlab='',ylab='')
@@ -265,7 +267,9 @@ gdscANOVA_singleDrugANOVA<-function(DRUG_ID,verbose=TRUE){
   nFEATURES<-length(FEATURES)
   
   if(verbose){
-    print(paste('Running Single Drug ANOVA:',DRUG_ID,' - ',DRUG_PROPS[DRUG_ID,"DRUG_NAME"],' [',DRUG_PROPS[DRUG_ID,"PUTATIVE_TARGET"],']',sep=''))
+    drug_id<-str_split(DRUG_ID,'_')[[1]][1]
+    print(paste('Running Single Drug ANOVA:',DRUG_ID,' - ',
+                DRUG_PROPS[drug_id,"DRUG_NAME"],' [',DRUG_PROPS[drug_id,"PUTATIVE_TARGET"],']',sep=''))
     pb <- txtProgressBar(min=1,max=nFEATURES,style=3)
   }
   

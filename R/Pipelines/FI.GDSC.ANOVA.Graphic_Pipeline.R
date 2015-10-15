@@ -17,7 +17,8 @@ if(!file.exists(association_plot_dir)){
   dir.create(association_plot_dir)
 }
 
-range<-which(as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH & as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH)
+range<-which(as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH & 
+               as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH)
 
 
 if (length(range)>0){
@@ -25,8 +26,12 @@ if (length(range)>0){
 }
 
 if(length(range)>5){
-  FeatureSummary<-gdscANOVA_computeFeatureStats(redTOTRES=TOTRES,fdrTH = gdscANOVA.settings.FDR_TH,pvalTH = gdscANOVA.settings.pval_TH)
-  DrugSummary<-gdscANOVA_computeDrugStats(redTOTRES=TOTRES,fdrTH = gdscANOVA.settings.FDR_TH,pvalTH = gdscANOVA.settings.pval_TH)
+  FeatureSummary<-gdscANOVA_computeFeatureStats(redTOTRES=TOTRES,
+                                                fdrTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,
+                                                pvalTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH)
+  DrugSummary<-gdscANOVA_computeDrugStats(redTOTRES=TOTRES,
+                                          fdrTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,
+                                          pvalTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH)
 }
 
 delta<-sign(as.numeric(TOTRES[,"FEATURE_deltaMEAN_IC50"]))*as.numeric(TOTRES[,"FEATURE_IC50_effect_size"])
@@ -36,7 +41,7 @@ N<-as.numeric(TOTRES[,"N_FEATURE_pos"])
 labels<-paste(TOTRES[,'Drug name'],' [',TOTRES[,'Drug Target'],']\n',TOTRES[,'FEATURE'])
 
 png(paste(current_dir,'OUTPUT/GRAPHICS/comprehensive_volcanoPlot.png',sep=''),768,1024)
-gdscANOVA_volcanoPlot_T(delta=delta,pval=pval,qvals=fdr,N=N,effth=1,fdrth = gdscANOVA.settings.FDR_TH)
+gdscANOVA_volcanoPlot_T(delta=delta,pval=pval,qvals=fdr,N=N,effth=1,fdrth = GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
 dev.off()
 
 vdPATH<-paste(paste(current_dir,'OUTPUT/GRAPHICS/DRUG_volcanos/',sep=''))

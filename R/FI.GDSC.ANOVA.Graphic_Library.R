@@ -1,6 +1,7 @@
 ## graphics
 BLUE<-rgb(0,0,255,100,maxColorValue=255)
 GRAY<-rgb(180,180,180,180,maxColorValue=255)
+
 gdscANOVA_createSCATTERS<-function(range,PATH){
   print('Creating idividual association plots')
   
@@ -26,7 +27,9 @@ gdscANOVA_scatterSets<-function(IC50pattern,MUTpattern,DRUG_ID,FEATURE){
   cols<-rep(GRAY,length(IC50pattern))
   cols[which(MUTpattern=='pos')]<-BLUE      
   
+  orDRUG_ID<-DRUG_ID
   
+  DRUG_ID<-str_split(DRUG_ID,'_')[[1]][1]
   par(mar=c(4,6,5,4))
   
   boxplot(IC50pattern~MUTpattern, col=NA,frame.plot=FALSE,boxwex=0.5,outline=FALSE,lwd=2,cex.axis=2,cex.lab=2,
@@ -40,9 +43,12 @@ gdscANOVA_scatterSets<-function(IC50pattern,MUTpattern,DRUG_ID,FEATURE){
   
   #DRC<-gdscANOVA_retrieveDScurve(names(IC50pattern),drug_id=DRUG_ID)
   
-  umax<-unique(maxConcTested[,DRUG_ID])
+  
+  
+  umax<-as.numeric(unique(maxConcTested[,orDRUG_ID]))
   umax<-log(umax[!is.na(umax)])
   
+
   for (i in 1:length(umax)){
     abline(h=umax[i],lty=2,lwd=1)  
   }
@@ -195,7 +201,7 @@ gdscANOVA_whiskerPlots<-function(IC50pattern,MUTpattern,TISSUEpattern,DRUG_ID,FE
 }
 gdscANOVA_volcanoPlot_T<-function(delta,pval,qvals,N,
                                   minN=NA,maxN=NA,
-                                  fdrth=gdscANOVA.settings.FDR_TH,effth=1,LIM=Inf,pointLabels=NULL,fdr=NULL,main='',fontsize=1){
+                                  fdrth=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,effth=1,LIM=Inf,pointLabels=NULL,fdr=NULL,main='',fontsize=1){
   
   
   par(mar=c(5,7,4,4))
@@ -206,12 +212,12 @@ gdscANOVA_volcanoPlot_T<-function(delta,pval,qvals,N,
   
   COL<-rep(nullcol,length(pval))
   
-  if(gdscANOVA.settings.CELL_LINES=='PANCAN'){
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'){
     COL[which(qvals<=fdrth & delta<=-effth)]<-greencol
     COL[which(qvals<=fdrth & delta>=effth)]<-redcol  
   }else{
-    COL[which(qvals<=fdrth & pval<=gdscANOVA.settings.pval_TH & delta>0)]<-redcol
-    COL[which(qvals<=fdrth & pval<=gdscANOVA.settings.pval_TH & delta<0)]<-greencol
+    COL[which(qvals<=fdrth & pval<=GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH & delta>0)]<-redcol
+    COL[which(qvals<=fdrth & pval<=GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH & delta<0)]<-greencol
   }
   
   
@@ -232,7 +238,7 @@ gdscANOVA_volcanoPlot_T<-function(delta,pval,qvals,N,
   abline(v=0,col='black')
   
   if(length(fdr)==0){
-    fdrLim20<-max(pval[which(qvals<gdscANOVA.settings.FDR_TH)]) 
+    fdrLim20<-max(pval[which(qvals<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)]) 
     fdrLim1<-max(pval[which(qvals<10)]) 
     fdrLim001<-max(pval[which(qvals<1)]) 
   } else{
@@ -253,7 +259,7 @@ gdscANOVA_volcanoPlot_T<-function(delta,pval,qvals,N,
   #   text(-XL-0.5,-log10(fdrLim1)+0.05,'FDR 1%',cex=0.7,col='gray')
   #   text(-XL-0.5,-log10(fdrLim001)+0.05,'FDR 0.01%',cex=0.7,col='gray')
   
-  if (gdscANOVA.settings.CELL_LINES=='PANCAN'){
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'){
     legend('topleft',legend=(c('FDR 1%','FDR 10%','FDR 25%','p 0.001')),cex=1,lty=c(4,3,2,5),lwd=1.5,y.intersp=1.5,
            col='gray',bty='n')  
   }else{
@@ -307,7 +313,7 @@ gdscANOVA_DRUG_volcanoPlot<-function(TOTRES,drug_id,print=FALSE,PATH=''){
   qvals<-as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])
   pvals<-as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])
   
-  fdr<-c(max(pvals[which(qvals<gdscANOVA.settings.FDR_TH)]),max(pvals[which(qvals<1)]),max(pvals[which(qvals<0.01)]))
+  fdr<-c(max(pvals[which(qvals<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)]),max(pvals[which(qvals<1)]),max(pvals[which(qvals<0.01)]))
   
   if(length(id)>1){
     TOTRES<-TOTRES[id,]
@@ -316,11 +322,11 @@ gdscANOVA_DRUG_volcanoPlot<-function(TOTRES,drug_id,print=FALSE,PATH=''){
   }
   labels<-TOTRES[,'FEATURE']
   
-  labels[which(as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])>=gdscANOVA.settings.FDR_TH)]<-''
-  MAIN<-paste(drug_id,' - ',DRUG_PROPS[drug_id,"DRUG_NAME"],' [',DRUG_PROPS[drug_id,"PUTATIVE_TARGET"],']',sep='')
+  labels[which(as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])>=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)]<-''
+  MAIN<-paste(drug_id,' - ',DRUG_PROPS[str_split(drug_id,'_')[[1]][1],"DRUG_NAME"],' [',DRUG_PROPS[str_split(drug_id,'_')[[1]][1],"PUTATIVE_TARGET"],']',sep='')
   
   if(print){
-    FN<-paste(PATH,drug_id,'.png',sep='')
+    FN<-paste(PATH,str_replace(drug_id,pattern = '/',replacement = '_'),'.png',sep='')
     png(FN,768,1024)
   }
   
@@ -367,7 +373,7 @@ gdscANOVA_FEATURE_volcanoPlot<-function(FEATURE,print=FALSE,cTOTRES,PATH=''){
   qvals<-as.numeric(cTOTRES[,"ANOVA FEATURE FDR %"])
   pvals<-as.numeric(cTOTRES[,"FEATURE_ANOVA_pval"])
   
-  fdr<-c(max(pvals[which(qvals<gdscANOVA.settings.FDR_TH)]),max(pvals[which(qvals<1)]),fdrLim001<-max(pvals[which(qvals<0.01)]))
+  fdr<-c(max(pvals[which(qvals<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)]),max(pvals[which(qvals<1)]),fdrLim001<-max(pvals[which(qvals<0.01)]))
   
   if (length(id)==1){cTOTRES<-t(as.matrix(cTOTRES[id,],1,ncol(cTOTRES)))}
   else{cTOTRES<-cTOTRES[id,]}
@@ -380,7 +386,7 @@ gdscANOVA_FEATURE_volcanoPlot<-function(FEATURE,print=FALSE,cTOTRES,PATH=''){
   
   labels<-paste(cTOTRES[,"Drug id"],'-',cTOTRES[,"Drug name"])
   
-  labels[which(as.numeric(cTOTRES[,"ANOVA FEATURE FDR %"])>=gdscANOVA.settings.FDR_TH)]<-''
+  labels[which(as.numeric(cTOTRES[,"ANOVA FEATURE FDR %"])>=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)]<-''
   MAIN<-FEATURE
   
   
@@ -389,7 +395,7 @@ gdscANOVA_FEATURE_volcanoPlot<-function(FEATURE,print=FALSE,cTOTRES,PATH=''){
   qval<-as.numeric(cTOTRES[,"ANOVA FEATURE FDR %"])
   N<-as.numeric(cTOTRES[,"N_FEATURE_pos"])
   
-  gdscANOVA_volcanoPlot_T(delta=delta,fontsize=1,fdrth=gdscANOVA.settings.FDR_TH,
+  gdscANOVA_volcanoPlot_T(delta=delta,fontsize=1,fdrth=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,
                           pval=pval,
                           qvals=qval,
                           N=N,minN=minN,maxN=maxN,effth=0,fdr=fdr,main=MAIN,
@@ -610,8 +616,8 @@ gdscANOVA_computeDrugStats<-function(redTOTRES,fdrTH=30,pvalTH=Inf,save=TRUE,dis
   
   colnames(TOTAL)<-c('sens assoc','res assoc','tot')
   
-  DRUGS<-paste(as.character(rownames(TOTAL)),' - ',DRUG_PROPS[as.character(rownames(TOTAL)),'DRUG_NAME'],
-               ' [',DRUG_PROPS[as.character(rownames(TOTAL)),'PUTATIVE_TARGET'],']',sep='')
+  DRUGS<-paste(as.character(rownames(TOTAL)),' - ',DRUG_PROPS[unlist(str_split(as.character(rownames(TOTAL)),'_'))[seq(1,2*nrow(TOTAL),2)],'DRUG_NAME'],
+               ' [',DRUG_PROPS[unlist(str_split(as.character(rownames(TOTAL)),'_'))[seq(1,2*nrow(TOTAL),2)],'PUTATIVE_TARGET'],']',sep='')
   
   TOTAL<-cbind(DRUGS,TOTAL)
   

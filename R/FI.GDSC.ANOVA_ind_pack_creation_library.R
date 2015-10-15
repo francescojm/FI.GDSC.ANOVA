@@ -14,12 +14,12 @@ gdscANOVA_RP_copy_html_elements<-function(PATH){
 gdscANOVA_RP_create_individual_associations_html<-function(superSet){
     
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
+                                                                 DRUG_BY_COMPANIES[,GDSCANOVA_SETTINGS$gdscANOVA.settings.DRUG_domain]==1),'DRUG_ID'])
   idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
   
   propTOTRES<-TOTRES[idxs,]
   
-  range<-which(as.numeric(propTOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)
+  range<-which(as.numeric(propTOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
   
   assoc_id<-propTOTRES[range,"assoc_id"]
   

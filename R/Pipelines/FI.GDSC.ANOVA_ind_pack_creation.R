@@ -1,6 +1,6 @@
 source('R/FI.GDSC.ANOVA_ind_pack_creation_library.R')
 
-DRUG_DOMAINS<-gdscANOVA.settings.DRUG_domain
+DRUG_DOMAINS<-GDSCANOVA_SETTINGS$gdscANOVA.settings.DRUG_domain
 
 packages_dir<-paste(current_dir,'PARSED_RESULTS/',sep='')
 
