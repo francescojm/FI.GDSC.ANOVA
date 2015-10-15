@@ -141,6 +141,9 @@ gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALS
     EFFECTSIZE_IC50<-gdscANOVA_cohens_d(IC50pattern[FEATpattern=='pos'],IC50pattern[FEATpattern=='neg'])
     GLASS_d<-gdscANOVA_glass_Ds(IC50pattern[FEATpattern=='pos'],IC50pattern[FEATpattern=='neg'])
     
+    
+    
+    
     maxC<-log(unique(maxConcTested[,DRUG_ID]))
     
     maxC<-maxC[which(!is.na(maxC))]
