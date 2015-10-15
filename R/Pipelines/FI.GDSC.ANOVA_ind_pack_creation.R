@@ -1,107 +1,128 @@
+DRUG_DOMAIN<-'AZ'
+
+source('R/FI.GDSC.ANOVA.Preamble_Library.R')
 source('R/FI.GDSC.ANOVA_ind_pack_creation_library.R')
 
-DRUG_DOMAINS<-GDSCANOVA_SETTINGS$gdscANOVA.settings.DRUG_domain
+destination_dir<-'../../RESULTS/ANOVA/PARSED_PACKAGES/'
 
-packages_dir<-paste(current_dir,'PARSED_RESULTS/',sep='')
+unparsed_results_dir<-'../../RESULTS/ANOVA/'
 
-if (!file.exists(packages_dir)){
-  dir.create(packages_dir)
+settingFile_dir<-'../../Data/ANOVA_setting_files/all_Analyses_Oct2015/'
+
+performed_analyses<-setdiff(dir(unparsed_results_dir),'PARSED_PACKAGES')
+
+if (!file.exists(destination_dir)){
+  dir.create(destination_dir)
 }
 
-DrugDomain<-DRUG_DOMAINS
+
+DrugDomain<-DRUG_DOMAIN
  
 print(paste('Creating result package for drug domain:',DrugDomain))
   
-print('creating folder structure')
+
+for (currentAnalysis in performed_analyses[2]){
   
-packages_DD_dir<-paste(packages_dir,DrugDomain,'/',sep='')
+  GDSCANOVA_SETTINGS<-gdscANOVA_Preamble(ANOVA_setting_file = paste(settingFile_dir,currentAnalysis,'.csv',sep=''))
   
-if (!file.exists(packages_DD_dir)){
-  dir.create(packages_DD_dir)  
+  load(paste(unparsed_results_dir,currentAnalysis,'/OUTPUT/ANOVA_results.rdata',sep=''))
+  
+  
+  current_dir<-currentAnalysis
+  
+  print('creating folder structure')
+  
+  packages_DD_dir<-paste(destination_dir,DrugDomain,'/',currentAnalysis,sep='')
+  
+  if (!file.exists(packages_DD_dir)){
+    dir.create(packages_DD_dir)  
+  }
+  
+  packages_DD_DATA_dir<-paste(packages_DD_dir,'/DATA/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_dir)){
+    dir.create(packages_DD_DATA_dir)
+  }
+  
+  packages_DD_DATA_INPUT_dir<-paste(packages_DD_DATA_dir,'INPUT/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_INPUT_dir)){
+    dir.create(packages_DD_DATA_INPUT_dir)
+  }
+  
+  packages_DD_DATA_OUTPUT_dir<-paste(packages_DD_DATA_dir,'OUTPUT/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_OUTPUT_dir)){
+    dir.create(packages_DD_DATA_OUTPUT_dir)
+  }
+  
+  packages_DD_DATA_HTMLEL_dir<-paste(packages_DD_DATA_dir,'HTML_elements/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_HTMLEL_dir)){
+    dir.create(packages_DD_DATA_HTMLEL_dir)
+  }
+  
+  packages_DD_DATA_HTMLEL_ASSOC_dir<-paste(packages_DD_DATA_HTMLEL_dir,'associations/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_HTMLEL_ASSOC_dir)){
+    dir.create(packages_DD_DATA_HTMLEL_ASSOC_dir)
+  }
+  
+  packages_DD_DATA_HTMLEL_DRUG_dir<-paste(packages_DD_DATA_HTMLEL_dir,'DRUGS/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_HTMLEL_DRUG_dir)){
+    dir.create(packages_DD_DATA_HTMLEL_DRUG_dir)
+  }
+  
+  packages_DD_DATA_HTMLEL_FEATURE_dir<-paste(packages_DD_DATA_HTMLEL_dir,'FEATURES/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_HTMLEL_FEATURE_dir)){
+    dir.create(packages_DD_DATA_HTMLEL_FEATURE_dir)
+  }
+  
+  packages_DD_DATA_HTMLEL_images_dir<-paste(packages_DD_DATA_HTMLEL_dir,'IMAGES/',sep='')
+  
+  if (!file.exists(packages_DD_DATA_HTMLEL_images_dir)){
+    dir.create(packages_DD_DATA_HTMLEL_images_dir)
+  }
+  
+  
+  print('copying HTML elements')
+  gdscANOVA_RP_copy_html_elements(packages_DD_DATA_HTMLEL_images_dir)
+  
+  print('creating individual associations htmls')
+  gdscANOVA_RP_create_individual_associations_html(superSet = current_dir)
+  
+  print('creating individual drug htmls')
+  gdscANOVA_RP_create_individual_drug_html(superSet = current_dir)
+  
+  print('creating individual features htmls')
+  gdscANOVA_RP_create_individual_feature_html(superSet = current_dir)
+  
+  print('creating MANOVA input/output files') 
+  gdscANOVA_RP_create_MANOVA_INPUT_OUTPUT_files(current_dir)
+  
+  ###################################################################
+  
+  print('creating DRUG DECODE files') 
+  gdscANOVA_RP_create_DRUG_DECODE_file()
+  
+  # 
+  #print('creating GENOMIC REGIONS DECODE files') 
+  #create_GenomicRegions_DECODE_file()
+  # #   
+  
+  print('creating comprehensive volcano plots') 
+  gdscANOVA_RP_create_comprehensive_vp()
+  
+  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
+                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)
+  
+  if (length(idxs)>2){
+    print('creating drug/feature summaries') 
+    gdscANOVA_RP_create_summaries()
+  }
+  
+  print('creating HTML index page')
+  gdscANOVA_RP_start_page_creation(superSet=current_dir,packages_DD_dir,DrugDomain)
 }
-
-packages_DD_DATA_dir<-paste(packages_DD_dir,'DATA/',sep='')
-
-if (!file.exists(packages_DD_DATA_dir)){
-  dir.create(packages_DD_DATA_dir)
-}
-
-packages_DD_DATA_INPUT_dir<-paste(packages_DD_DATA_dir,'INPUT/',sep='')
-
-if (!file.exists(packages_DD_DATA_INPUT_dir)){
-  dir.create(packages_DD_DATA_INPUT_dir)
-}
-
-packages_DD_DATA_OUTPUT_dir<-paste(packages_DD_DATA_dir,'OUTPUT/',sep='')
-
-if (!file.exists(packages_DD_DATA_OUTPUT_dir)){
-  dir.create(packages_DD_DATA_OUTPUT_dir)
-}
-
-packages_DD_DATA_HTMLEL_dir<-paste(packages_DD_DATA_dir,'HTML_elements/',sep='')
-
-if (!file.exists(packages_DD_DATA_HTMLEL_dir)){
-  dir.create(packages_DD_DATA_HTMLEL_dir)
-}
-
-packages_DD_DATA_HTMLEL_ASSOC_dir<-paste(packages_DD_DATA_HTMLEL_dir,'associations/',sep='')
-
-if (!file.exists(packages_DD_DATA_HTMLEL_ASSOC_dir)){
-  dir.create(packages_DD_DATA_HTMLEL_ASSOC_dir)
-}
-
-packages_DD_DATA_HTMLEL_DRUG_dir<-paste(packages_DD_DATA_HTMLEL_dir,'DRUGS/',sep='')
-
-if (!file.exists(packages_DD_DATA_HTMLEL_DRUG_dir)){
-  dir.create(packages_DD_DATA_HTMLEL_DRUG_dir)
-}
-
-packages_DD_DATA_HTMLEL_FEATURE_dir<-paste(packages_DD_DATA_HTMLEL_dir,'FEATURES/',sep='')
-
-if (!file.exists(packages_DD_DATA_HTMLEL_FEATURE_dir)){
-  dir.create(packages_DD_DATA_HTMLEL_FEATURE_dir)
-}
-
-packages_DD_DATA_HTMLEL_images_dir<-paste(packages_DD_DATA_HTMLEL_dir,'IMAGES/',sep='')
-
-if (!file.exists(packages_DD_DATA_HTMLEL_images_dir)){
-  dir.create(packages_DD_DATA_HTMLEL_images_dir)
-}
-
-
-print('copying HTML elements')
-gdscANOVA_RP_copy_html_elements(packages_DD_DATA_HTMLEL_images_dir)
-
-print('creating individual associations htmls')
-gdscANOVA_RP_create_individual_associations_html(current_dir)
-
-print('creating individual drug htmls')
-gdscANOVA_RP_create_individual_drug_html(superSet = current_dir)
-
-print('creating individual features htmls')
-gdscANOVA_RP_create_individual_feature_html(current_dir)
- 
-print('creating MANOVA input/output files') 
-gdscANOVA_RP_create_MANOVA_INPUT_OUTPUT_files(current_dir)
-
-print('creating DRUG DECODE files') 
-gdscANOVA_RP_create_DRUG_DECODE_file()
-
-# 
-#print('creating GENOMIC REGIONS DECODE files') 
-#create_GenomicRegions_DECODE_file()
-# #   
-
-print('creating comprehensive volcano plots') 
-gdscANOVA_RP_create_comprehensive_vp()
- 
-idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-              as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)
-
-if (length(idxs)>2){
-  print('creating drug/feature summaries') 
-  gdscANOVA_RP_create_summaries()
-}
- 
-print('creating HTML index page')
-gdscANOVA_RP_start_page_creation(superSet=current_dir,packages_DD_dir,DrugDomain)
