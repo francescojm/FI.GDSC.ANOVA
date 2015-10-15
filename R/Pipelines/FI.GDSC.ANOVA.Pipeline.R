@@ -75,9 +75,7 @@ DIAGNOSTICS<-gdscANOVA_diagnostics()
 gdscANOVA_create_systemInfos()
  
 TOTRES<-gdscANOVA_totalANOVA(fn=paste(OUTPUT_DIR,'ANOVA_results',sep=''))
-# 
-# write.table(TOTRES,quote=FALSE,row.names=F,sep='\t',file=paste(OUTPUT_DIR,'ANOVA_results','.txt',sep=''))
-# 
-# save(TOTRES,file=paste(OUTPUT_DIR,'ANOVA_results','.rdata',sep=''))
-# 
-# 
+ 
+write.table(TOTRES,quote=FALSE,row.names=F,sep='\t',file=paste(OUTPUT_DIR,'ANOVA_results','.txt',sep=''))
+ 
+save(TOTRES,file=paste(OUTPUT_DIR,'ANOVA_results','.rdata',sep=''))

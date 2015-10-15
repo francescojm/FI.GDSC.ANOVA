@@ -48,6 +48,9 @@ gdscANOVA_Preamble_loading<-function(global_setting_list){
   load(global_setting_list$gdscANOVA.drugProperties.fn)
   DRUG_PROPS<<-DRUG_PROPS
   
+  load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
+  DRUG_BY_COMPANIES<<-DRUG_BY_COMPANIES
+  
   load(global_setting_list$gdscANOVA.maxTestedConc.fn)
  
   maxConcTested<<-maxConcTested
