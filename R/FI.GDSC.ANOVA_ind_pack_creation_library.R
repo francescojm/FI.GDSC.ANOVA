@@ -5,6 +5,27 @@ load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
 load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
 
 
+gdscANOVA_RP_finalDiagnosis<-function(TOTRES){
+  
+  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
+  
+  TotalNumberOfHits<-length(idxs)
+  
+  if (length(idxs)>0){
+    InvolvedProprietaryDrugs<-sum(1-DRUG_BY_COMPANIES[unique(unlist(str_split(TOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
+    OutOfPropDrugs<-length(which(DRUG_PROPS$OWNED_BY==DRUG_DOMAIN & DRUG_PROPS$WEBRELEASE!='Y'))
+  
+    InvolvedPublicDrugs<-sum(DRUG_BY_COMPANIES[unique(unlist(str_split(TOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
+    OutOfPublicDrugs<-length(which(DRUG_PROPS$WEBRELEASE=='Y'))
+  
+    RES<-c(TotalNumberOfHits,InvolvedProprietaryDrugs,OutOfPropDrugs,InvolvedPublicDrugs,OutOfPublicDrugs)
+  }else{
+    RES<-c(0,0,0,0)
+  }
+  return(RES)
+}
+
 
 gdscANOVA_RP_copy_html_elements<-function(PATH){
   
@@ -12,7 +33,7 @@ gdscANOVA_RP_copy_html_elements<-function(PATH){
   
   for (i in 1:length(fl)){
     file.copy(paste('HTML_templates_and_elements/images/',fl[i],sep=''),
-              paste(PATH,fl[i],sep=''))  
+              paste(PATH,fl[i],sep=''))
   }
   
   
@@ -368,7 +389,7 @@ gdscANOVA_RP_all_assoc_summary<-function(superSet,redTOTRES,PATH){
     DELTAMcolors<-gdscANOVA_RP_map2color(DELTAS,colorRampPalette(c('green','white','red'))(200),limits=limits)
     }
   
-  header <- paste('<center><font size=+2 face="Arial">MANOVA Results Summary</font><br><center>\n
+  header <- paste('<center><font size=+2 face="Arial">ANOVA Results Summary</font><br><center>\n
                   <center><table border=1 width=100% cellspacing=1 cellpadding=2 cols=7 style="font-family: Arial; font-size: 10px">\n
                   <tr><td><b><center>association id</center></b></td>
                   <td><b><center>FEATURE</center></b></td>

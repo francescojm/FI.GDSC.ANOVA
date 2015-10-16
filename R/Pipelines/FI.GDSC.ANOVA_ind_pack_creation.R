@@ -1,5 +1,7 @@
 DRUG_DOMAIN<-'AZ'
 
+library(stringr)
+
 source('R/FI.GDSC.ANOVA.Preamble_Library.R')
 source('R/FI.GDSC.ANOVA.Graphic_Library.R')
 
@@ -29,7 +31,8 @@ DrugDomain<-DRUG_DOMAIN
 print(paste('Creating result package for drug domain:',DrugDomain))
   
 
-for (currentAnalysis in performed_analyses[1:3]){
+
+for (currentAnalysis in performed_analyses){
   
   print(paste('Generating analysis Specific Package:',currentAnalysis))
   
@@ -138,5 +141,71 @@ for (currentAnalysis in performed_analyses[1:3]){
   print('creating HTML index page')
   gdscANOVA_RP_start_page_creation(superSet=current_dir,PATH = packages_DD_dir,packageName = DrugDomain)
   
-  
+  if (currentAnalysis==performed_analyses[1]){
+    finalDiag<-gdscANOVA_RP_finalDiagnosis(TOTRES)  
+  }else{
+    finalDiag<-rbind(finalDiag,gdscANOVA_RP_finalDiagnosis(TOTRES))
+  }
 }
+
+rownames(finalDiag)<-performed_analyses
+
+URLdir<-str_replace_all(current_dir,' ','%20')
+
+logo1<-paste('<img src=','./',DRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/sanger-logo.png',' title=sanger-logo align="center"/>',sep='')
+logo3<-paste('<img src=','./',DRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/EBI_logo.png',' title=sanger-logo align="center"/>',sep='')
+
+logos<-paste(logo1,logo3,'\n')
+
+superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project - Collaborator: ',DRUG_DOMAIN,'</font><br></center>\n')
+
+author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
+
+timestamp<-paste('<center><font size=-2 face="Arial" color="gray"> result parsing started on ',Sys.time(),'</font></center>',sep='')
+
+contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
+
+if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+  ad<-paste(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
+}else{
+  ad<-'panCancer'
+}
+
+owner<-paste('<br><br><center><font size=+1 face="Arial">Drug Domain: <b>',DrugDomain,'</b> proprietary compounds and public compounds</font><br></center><br><br>',sep='')
+
+header <- paste('<center><font size=+2 face="Arial">Individual ANOVAs Results Summary</font><br><center>\n
+                  <center><table border=1 width=100% cellspacing=1 cellpadding=2 cols=7 style="font-family: Arial; font-size: 13px">\n
+                  <tr><td><b><center>Analysis name:</center></b></td>
+                  <td><b><center>Number of hits:</center></b></td>
+                  <td><b><center>Involving Proprietary compounds:</center></b></td>
+                  <td><b><center>out of:</center></b></td>
+                  <td><b><center>Involving Public compounds:</center></b></td>
+                  <td><b><center>out of:</center></b></td></tr>\n')
+
+tail<-paste('</tr>\n</table></center>')
+
+body<-'\n'
+
+body<-paste(body,logos,superheader,author,timestamp,contact,owner,header)
+
+
+for (i in 1:nrow(finalDiag)){
+  currentLine<-paste('<td><center><a href="./',DRUG_DOMAIN,'/',paste(rownames(finalDiag)[i],'Home.html',sep=''),'" target="_blank">',rownames(finalDiag)[i],'</a></center></td>\n',sep='')
+  body<-paste(body,currentLine)
+  currentLine<-paste('<td><center>',finalDiag[i,1],'<center></td>\n',sep='')
+  body<-paste(body,currentLine)
+  currentLine<-paste('<td><center>',finalDiag[i,2],'<center></td>\n',sep='')
+  body<-paste(body,currentLine)
+  currentLine<-paste('<td><center>',finalDiag[i,3],'<center></td>\n',sep='')
+  body<-paste(body,currentLine)
+  currentLine<-paste('<td><center>',finalDiag[i,4],'<center></td>\n',sep='')
+  body<-paste(body,currentLine)
+  currentLine<-paste('<td><center>',finalDiag[i,5],'<center></td></tr>\n',sep='')
+  body<-paste(body,currentLine)
+}
+
+body<-paste(body,tail)
+write(body, file = paste(destination_dir,'/',DRUG_DOMAIN,'_home.html',sep=''),append=FALSE)
+
+
+
