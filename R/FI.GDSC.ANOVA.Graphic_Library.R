@@ -2,6 +2,8 @@
 BLUE<-rgb(0,0,255,100,maxColorValue=255)
 GRAY<-rgb(180,180,180,180,maxColorValue=255)
 
+
+
 gdscANOVA_createSCATTERS<-function(range,PATH){
   print('Creating idividual association plots')
   
@@ -395,10 +397,17 @@ gdscANOVA_FEATURE_volcanoPlot<-function(FEATURE,print=FALSE,cTOTRES,PATH=''){
   qval<-as.numeric(cTOTRES[,"ANOVA FEATURE FDR %"])
   N<-as.numeric(cTOTRES[,"N_FEATURE_pos"])
   
-  gdscANOVA_volcanoPlot_T(delta=delta,fontsize=1,fdrth=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,
+  gdscANOVA_volcanoPlot_T(delta=delta,
+                          fontsize=1,
+                          fdrth=GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,
                           pval=pval,
                           qvals=qval,
-                          N=N,minN=minN,maxN=maxN,effth=0,fdr=fdr,main=MAIN,
+                          N=N,
+                          minN=minN,
+                          maxN=maxN,
+                          effth=0,
+                          fdr=fdr,
+                          main=MAIN,
                           pointLabels=labels)
   
   if(print){

@@ -1,7 +1,10 @@
 
 load(GDSCANOVA_SETTINGS$gdscANOVA.drugProperties.fn)
-load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
 load(GDSCANOVA_SETTINGS$gdscANOVA.screening.fn)
+load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
+load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
+
+
 
 gdscANOVA_RP_copy_html_elements<-function(PATH){
   
@@ -318,27 +321,19 @@ gdscANOVA_RP_all_assoc_summary_body<-function(redTOTRES){
   
   return(list(body=body,n=length(range)))
 }
-gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
+gdscANOVA_RP_all_assoc_summary<-function(superSet,redTOTRES,PATH){
   
   element_folder<-paste('./DATA/HTML_elements/')
   
-  logo1<-paste('<img src=',paste('./IMAGES/sanger-logo.png',sep=''),' title=sanger-logo align="center"/>')
-  logo2<-paste('<img src=',paste('./IMAGES/logo-nki.png',sep=''),' title=sanger-logo align="center"/>')
-  logo3<-paste('<img src=',paste('./IMAGES/EBI_logo.png',sep=''),' title=sanger-logo align="center"/>')
+
+    
+  logo1<-paste('<img src=','./IMAGES/sanger-logo.png',' title=sanger-logo align="center"/>',sep='')
+  logo2<-paste('<img src=','./IMAGES/logo-nki.png',' title=sanger-logo align="center"/>',sep='')
+  logo3<-paste('<img src=','./IMAGES/EBI_logo.png',' title=sanger-logo align="center"/>',sep='')
   
-  logos<-''
+  logos<-paste(logo1,logo3,'\n')
   
-  if (gdscANOVA.settings.resPackageIncludeSangerLogo){
-    logos<-paste(logos,logo1,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeNKILogo){
-    logos<-paste(logos,logo2,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeEBIlogo){
-    logos<-paste(logos,logo3,'\n') 
-  }
-  
-  superheader <- paste('<br><br><center><font size=+2 face="Arial">',gdscANOVA.settings.resPackageHeader,'</font><br></center>\n')
+  superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project','</font><br></center>\n')
   
   author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
   
@@ -380,6 +375,7 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
                   <td><b><center>Drug id</center></b></td>
                   <td><b><center>Propr</center></b></td>
                   <td><b><center>Public</center></b></td>
+                  <td><b><center>Owned by</center></b></td>
                   <td><b><center>Drug Name</center></b></td>
                   <td><b><center>Drug Target</center></b></td>
                   <td><b><center>N FEATURE pos</center></b></td>
@@ -398,12 +394,20 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
   
   tail<-paste('</tr>\n</table></center>')
   
-  DID<-redTOTRES[range,'Drug id']
+  body<-'\n'
   
-  posit<-match(DID,DRUG_BY_COMPANIES$DRUG_ID)
+  if (length(range)>0){
+    
   
-  publicDRUG<-DRUG_BY_COMPANIES[posit,gdscANOVA.settings.DRUG_domain]
-  proprDRUG<-NULL
+  DID<-unlist(str_split(redTOTRES[range,'Drug id'],'_'))[seq(1,length(range)*2,2)]
+  
+  posit<-match(DID,DRUG_BY_COMPANIES[,'DRUG_ID'])
+  
+  publicDRUG<-DRUG_BY_COMPANIES[posit,'Web Released']
+  proprDRUG<-DRUG_BY_COMPANIES[posit,DRUG_DOMAIN]
+  ownerDRUG<-DRUG_PROPS[posit,"OWNED_BY"]
+  
+  ownerDRUG[is.na(ownerDRUG)]<''
   
   publicDRUGCOLOR<-rep('white',length(publicDRUG))
   publicDRUGCOLOR[which(publicDRUG==1)]<-'blue'
@@ -413,7 +417,7 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
     
   body<-'\n'
   
-  if (length(range)>0){
+
     for (i in 1:length(range)){
       setTxtProgressBar(pb,i)
       
@@ -429,6 +433,8 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
       currentLine<-paste('<td bgcolor=',publicDRUGCOLOR[i],'><center>',as.character(publicDRUG[i]),'</center></td>\n',sep='')
       body<-paste(body,currentLine)
       
+      currentLine<-paste('<td><center>',ownerDRUG[i],'</center></td>\n',sep='')
+      body<-paste(body,currentLine)
       
       currentLine<-paste('<td><center>',as.character(redTOTRES[i,"Drug name"]),'</center></td>\n',sep='')
       body<-paste(body,currentLine)
@@ -538,7 +544,7 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
     close(pb)
   }
   
-  
+
   write(body, file = paste(PATH,"000_Significant_Hits.html",sep=''),append=FALSE)
 }
 
@@ -696,7 +702,7 @@ gdscANOVA_RP_create_individual_feature_html<-function(superSet){
   
       for (i in 1:n_feat){
         setTxtProgressBar(pb,i)
-        gdscANOVA_RP_create_single_feat_html(propTOTRES=propTOTRES,feat[i],superSet = superSet)
+        gdscANOVA_RP_create_single_feat_html(propTOTRES=propTOTRES,ff = feat[i],superSet = superSet)
       }
   
       Sys.sleep(1)
@@ -705,7 +711,6 @@ gdscANOVA_RP_create_individual_feature_html<-function(superSet){
 }
 
 gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff,superSet){
-  load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,superSet,'/INPUT/','InputFeatures.rdata',sep=''))
   ORF<-ff
   gdscANOVA_FEATURE_volcanoPlot(FEATURE=ff,print=TRUE,cTOTRES=propTOTRES,PATH=packages_DD_DATA_HTMLEL_FEATURE_dir)
   
@@ -854,9 +859,23 @@ gdscANOVA_RP_create_DRUG_DECODE_file<-function(){
                                                      DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
   
   
-  DRUG_DECODE<-DRUG_PROPS[drug_ids,1:3]
+  DRUG_DECODE<-DRUG_PROPS[drug_ids,]
   
   write.table(DRUG_DECODE,file=paste(packages_DD_DATA_INPUT_dir,'DRUG_DECODE.txt',sep=''),sep='\t',quote=FALSE,row.names=FALSE)
+}
+gdscANOVA_RP_create_GenomicRegions_DECODE_file<-function(){
+  
+  load('HTML_templates_and_elements/cna_region_annotations.rdata')
+  
+  idxs<-which(str_detect(rownames(cna_region_annotations),GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES))
+  
+  GENOMIC_REGION_DECODE<-cna_region_annotations[idxs,]
+  GENOMIC_REGION_DECODE<-cbind(rownames(GENOMIC_REGION_DECODE),GENOMIC_REGION_DECODE)
+  colnames(GENOMIC_REGION_DECODE)[1]<-'Region Id'
+  
+  write.table(GENOMIC_REGION_DECODE[,c(1,2,4,5,6,7,8,13,14,15,16)],
+              file=paste(packages_DD_DATA_INPUT_dir,'GENOMIC_REGIONS_DECODE.txt',sep=''),sep='\t',quote=FALSE,row.names=FALSE)
+  
 }
 gdscANOVA_RP_create_comprehensive_vp<-function(){
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
@@ -901,23 +920,18 @@ gdscANOVA_RP_start_page_creation<-function(superSet,PATH,packageName){
   
   element_folder<-paste('./DATA/HTML_elements/')
   
-  logo1<-paste('<img src=',paste('./DATA/HTML_elements/IMAGES/sanger-logo.png',sep=''),' title=sanger-logo align="center"/>')
-  logo2<-paste('<img src=',paste('./DATA/HTML_elements/IMAGES/logo-nki.png',sep=''),' title=sanger-logo align="center"/>')
-  logo3<-paste('<img src=',paste('./DATA/HTML_elements/IMAGES/EBI_logo.png',sep=''),' title=sanger-logo align="center"/>')
+  URLsuperSet<-str_replace_all(superSet,' ','%20')
+  
+  logo1<-paste('<img src=',paste('./',URLsuperSet,'/DATA/HTML_elements/IMAGES/sanger-logo.png',sep=''),' title=sanger-logo align="center"/>')
+  logo2<-paste('<img src=',paste('./',URLsuperSet,'/DATA/HTML_elements/IMAGES/logo-nki.png',sep=''),' title=sanger-logo align="center"/>')
+  logo3<-paste('<img src=',paste('./',URLsuperSet,'/DATA/HTML_elements/IMAGES/EBI_logo.png',sep=''),' title=sanger-logo align="center"/>')
   
   logos<-''
   
-  if (gdscANOVA.settings.resPackageIncludeSangerLogo){
-    logos<-paste(logos,logo1,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeNKILogo){
-    logos<-paste(logos,logo2,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeEBIlogo){
-    logos<-paste(logos,logo3,'\n') 
-  }
+  logos<-paste(logos,logo1,'\n') 
+  logos<-paste(logos,logo3,'\n') 
   
-  superheader <- paste('<br><br><center><font size=+2 face="Arial">',gdscANOVA.settings.resPackageHeader,'</font><br></center>\n')
+  superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project','</font><br></center>\n')
   
   author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
   
@@ -939,23 +953,29 @@ gdscANOVA_RP_start_page_creation<-function(superSet,PATH,packageName){
   
   
   
-  analysis_info<-gdscANOVA_RP_retrieveAnalysisInfo()
+  analysis_info<-gdscANOVA_RP_retrieveAnalysisInfo(superSet,paste(unparsed_results_dir,superSet,'/SYSTEM_INFOS.rdata',sep=''))
   body<-paste(body,analysis_info)
   
-  title<-'<br><font font size=+1 face="Arial"><b><a href="./DATA/HTML_elements/000_Significant_Hits.html" target="_blank">
-  Explore all the significant associations</a></b></font><br>\n'
+  title<-paste('<br><font font size=+1 face="Arial"><b><a href=" ./',URLsuperSet,'/DATA/HTML_elements/000_Significant_Hits.html" target="_blank">
+  Explore all the significant associations</a></b></font><br>\n',sep='')
   
   body<-paste(body,title)
   
-  link1<-paste('<br><font font face="Arial"><a href="',paste('./DATA/INPUT/ANOVA_input.txt',sep=''),
-               '">ANOVA input data as tab delimited txt file (genomic features and drug response) </a></font><br>\n')
+  link1<-paste('<br><font font face="Arial"><a href="',' ./',URLsuperSet,'/DATA/INPUT/ANOVA_input.txt',
+               '">ANOVA input data as tab delimited txt file (genomic features and drug response) </a></font><br>\n',sep='')
   
   body<-paste(body,link1)
   
-  link1<-paste('<br><font font face="Arial"><a href="',paste('./DATA/INPUT/DRUG_DECODE.txt',sep=''),
-               '">Drug annotations as tab delimited txt file </a></font><br><hr>\n')
+  link1<-paste('<br><font font face="Arial"><a href="',paste(' ./',URLsuperSet,'/DATA/INPUT/DRUG_DECODE.txt',sep=''),
+               '">Drug annotations as tab delimited txt file </a></font><br>\n')
   
   body<-paste(body,link1)
+  
+  link1<-paste('<br><font font face="Arial"><a href="',paste(' ./',URLsuperSet,'/DATA/INPUT/GENOMIC_REGIONS_DECODE.txt',sep=''),
+               '">Copy number altered chromosomal region annotations as tab delimited txt file </a></font><br><hr>\n')
+  
+  body<-paste(body,link1)
+  
   
   idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
                 as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
@@ -973,7 +993,10 @@ gdscANOVA_RP_start_page_creation<-function(superSet,PATH,packageName){
 }
 
 
-gdscANOVA_RP_retrieveAnalysisInfo<-function(){
+gdscANOVA_RP_retrieveAnalysisInfo<-function(superSet,ANALYSIS_SYSTEMS_INFOS_FN){
+  
+  load(ANALYSIS_SYSTEMS_INFOS_FN)
+  load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,superSet,'/INPUT/','InputFeatures.rdata',sep=''))
   
   title<-paste('<br><br><font size=+1 face="Arial"><b>Super Analysis Details</b></font><br>\n')
   
@@ -1000,7 +1023,8 @@ gdscANOVA_RP_retrieveAnalysisInfo<-function(){
   total_number_cell_lines<-length(intersect(colnames(InputFeatures$BEM),rownames(IC50s)))
   ncell<-paste('<font size=-1 face="Arial">Total number of screened cell lines:',total_number_cell_lines,'</font><br><br>')
   
-  MSIinclusion<-paste('<font size=-1 face="Arial">MicroSatellite instability included as factor = ',as.logical(gdscANOVA.settings.includeMSI_Factor),'</font><br><br>\n<hr>')
+  MSIinclusion<-paste('<font size=-1 face="Arial">MicroSatellite instability included as factor = ',
+                      as.logical(GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor),'</font><br><br>\n<hr>')
   
     
   total_number_of_significant_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
@@ -1045,9 +1069,11 @@ gdscANOVA_RP_retrieveAnalysisInfo<-function(){
 
 gdscANOVA_RP_analysis_summary<-function(superSet,DrugDomain){
   
+  URLsuperSet<-str_replace_all(superSet,' ','%20')
+  
   title<-paste('<br><br><font size=+1 face="Arial"><b>Results summaries</b></font><br>\n')
   
-  vpall<-paste('<img src=./DATA/OUTPUT/comprehensive_volcanoPlot.png width=510 height=680 title=comp_vp align="center"/>')
+  vpall<-paste('<img src= ./',URLsuperSet,'/DATA/OUTPUT/comprehensive_volcanoPlot.png width=510 height=680 title=comp_vp align="center"/>',sep='')
   
   volcanoPlots<-paste(vpall,'\n')
   
@@ -1056,20 +1082,20 @@ gdscANOVA_RP_analysis_summary<-function(superSet,DrugDomain){
   body<-paste(title,bodytext,volcanoPlots)
   
   
-  vpall<-paste('<img src=./DATA/OUTPUT/FeatureSummary.png width=429 height=660 title=comp_vp align="center"/>')
+  vpall<-paste('<img src= ./',URLsuperSet,'/DATA/OUTPUT/FeatureSummary.png width=429 height=660 title=comp_vp align="center"/>',sep='')
   featureSummaries<-paste(vpall,'\n')
   
   bodytext<-paste('<br><br><br><font font size=+1 face="Arial"><b>- Features most frequently associated with drug response:</b></font><br><br>\n')
   
   body<-paste(body,bodytext,featureSummaries)
   
-  link1<-paste('<br><br><font font size=-1 face="Arial"><a href="',paste('./DATA/OUTPUT/FeatureSummary.txt',sep=''),
+  link1<-paste('<br><br><font font size=-1 face="Arial"><a href="',paste(' ./',URLsuperSet,'/DATA/OUTPUT/FeatureSummary.txt',sep=''),
                '">right click on this link to save summary infos for all the features as tab delimited txt file </a></font><br>\n')
   
   body<-paste(body,link1)
   
   
-  vpall<-paste('<img src=./DATA/OUTPUT/DrugSummary.png width=500 height=500 title=comp_vp align="center"/>')
+  vpall<-paste('<img src= ./',URLsuperSet,'/DATA/OUTPUT/DrugSummary.png width=500 height=500 title=comp_vp align="center"/>',sep='')
   
   featureSummaries<-paste(vpall,'\n')
   
@@ -1078,7 +1104,7 @@ gdscANOVA_RP_analysis_summary<-function(superSet,DrugDomain){
   
   body<-paste(body,bodytext,featureSummaries)
   
-  link1<-paste('<br><br><font font size=-1 face="Arial"><a href="',paste('./DATA/OUTPUT/DrugSummary.txt',sep=''),
+  link1<-paste('<br><br><font font size=-1 face="Arial"><a href="',paste('./',URLsuperSet,'/DATA/OUTPUT/DrugSummary.txt',sep=''),
                '">right click on this link to save summary infos for all the features as tab delimited txt file </a></font><br>\n')
   
   body<-paste(body,link1)
@@ -1090,27 +1116,27 @@ gdscANOVA_RP_analysis_summary<-function(superSet,DrugDomain){
 
 gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain){
   
-  
-  body<-''
-  
-  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
-  
-  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
-  idxs<-which(is.element(did_in_totres,drug_ids_panp))
-  
-  redTOTRES<-TOTRES[idxs,]
-  
-  gdscANOVA_RP_all_assoc_summary(redTOTRES=redTOTRES,PATH=(packages_DD_DATA_HTMLEL_dir))
-  
-  body<-paste(body,'<br><hr>')
-  
-  bunch<-'<br><font font size=+1 face="Arial"><b>Drug-wise associations browser</b></font><br>\n'
-  
-  body<-paste(body,bunch)
-  
-  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+   URLsuperSet<-str_replace_all(superSet,' ','%20')
+   body<-''
+   
+   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
+                                                         DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+   
+   did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+   idxs<-which(is.element(did_in_totres,drug_ids_panp))
+   
+   redTOTRES<-TOTRES[idxs,]
+   
+   gdscANOVA_RP_all_assoc_summary(superSet=superSet,redTOTRES=redTOTRES,PATH=(packages_DD_DATA_HTMLEL_dir))
+   
+   body<-paste(body,'<br><hr>')
+   
+   bunch<-'<br><font font size=+1 face="Arial"><b>Drug-wise associations browser</b></font><br>\n'
+   
+   body<-paste(body,bunch)
+   
+   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
+                                                         DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
   
   didintotres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(2,nrow(TOTRES)*2,2)]
 
@@ -1123,8 +1149,8 @@ gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain)
   crunk<-''
   for (i in 1:length(DIDS)){
     
-    voce<-paste(DIDS[i],' - ',DRUG_PROPS[DIDS[i],'DRUG_NAME'],sep='')
-    bunch<-paste('<center><font face="Arial" font size=-1><a href="./DATA/HTML_elements/DRUGS/',DIDS[i],'.html" target="_blank">',voce,'</a></font></center>\n',sep='')
+    voce<-paste(DIDS[i],' - ',DRUG_PROPS[str_split(DIDS[i],'_')[[1]][1],'DRUG_NAME'],sep='')
+    bunch<-paste('<center><font face="Arial" font size=-1><a href="./',URLsuperSet,'/DATA/HTML_elements/DRUGS/',DIDS[i],'.html" target="_blank">',voce,'</a></font></center>\n',sep='')
     crunk<-paste(crunk,bunch)
   }
   
@@ -1153,18 +1179,17 @@ gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain)
   for (i in 1:length(FF)){
     
     voce<-FF[i]
-    bunch<-paste('<center><font face="Arial" font size=-1><a href="./DATA/HTML_elements/FEATURES/',FF[i],'.html" target="_blank">',voce,'</a></font></center>\n',sep='')
+    bunch<-paste('<center><font face="Arial" font size=-1><a href="./',URLsuperSet,'/DATA/HTML_elements/FEATURES/',FF[i],'.html" target="_blank">',voce,'</a></font></center>\n',sep='')
     crunk<-paste(crunk,bunch)
   }
   
   body<-paste(body,crunk)
   
   
-  
   body<-paste(body,'<br><hr>')
   
   
-  return(body)
+ return(body)
   
 }
 

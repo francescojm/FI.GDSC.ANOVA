@@ -1,7 +1,9 @@
 DRUG_DOMAIN<-'AZ'
 
 source('R/FI.GDSC.ANOVA.Preamble_Library.R')
-source('R/FI.GDSC.ANOVA_ind_pack_creation_library.R')
+source('R/FI.GDSC.ANOVA.Graphic_Library.R')
+
+#source('R/FI.GDSC.ANOVA_ind_pack_creation_library.R')
 
 destination_dir<-'../../RESULTS/ANOVA/PARSED_PACKAGES/'
 
@@ -15,15 +17,26 @@ if (!file.exists(destination_dir)){
   dir.create(destination_dir)
 }
 
+finaldestination_dir<-paste(destination_dir,DRUG_DOMAIN,sep='')
+
+if (!file.exists(finaldestination_dir)){
+  dir.create(finaldestination_dir)
+}
+
 
 DrugDomain<-DRUG_DOMAIN
  
 print(paste('Creating result package for drug domain:',DrugDomain))
   
 
-for (currentAnalysis in performed_analyses[2]){
+for (currentAnalysis in performed_analyses[1:3]){
+  
+  print(paste('Generating analysis Specific Package:',currentAnalysis))
   
   GDSCANOVA_SETTINGS<-gdscANOVA_Preamble(ANOVA_setting_file = paste(settingFile_dir,currentAnalysis,'.csv',sep=''))
+  
+  load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,currentAnalysis,'/INPUT/','InputFeatures.rdata',sep=''))
+  source('R/FI.GDSC.ANOVA_ind_pack_creation_library.R')
   
   load(paste(unparsed_results_dir,currentAnalysis,'/OUTPUT/ANOVA_results.rdata',sep=''))
   
@@ -107,16 +120,15 @@ for (currentAnalysis in performed_analyses[2]){
   print('creating DRUG DECODE files') 
   gdscANOVA_RP_create_DRUG_DECODE_file()
   
-  # 
-  #print('creating GENOMIC REGIONS DECODE files') 
-  #create_GenomicRegions_DECODE_file()
-  # #   
+   
+  print('creating GENOMIC REGIONS DECODE files') 
+  gdscANOVA_RP_create_GenomicRegions_DECODE_file()
   
   print('creating comprehensive volcano plots') 
   gdscANOVA_RP_create_comprehensive_vp()
   
-  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)
+  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
   
   if (length(idxs)>2){
     print('creating drug/feature summaries') 
@@ -124,5 +136,7 @@ for (currentAnalysis in performed_analyses[2]){
   }
   
   print('creating HTML index page')
-  gdscANOVA_RP_start_page_creation(superSet=current_dir,packages_DD_dir,DrugDomain)
+  gdscANOVA_RP_start_page_creation(superSet=current_dir,PATH = packages_DD_dir,packageName = DrugDomain)
+  
+  
 }
