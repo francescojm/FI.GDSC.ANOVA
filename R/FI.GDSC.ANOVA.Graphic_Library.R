@@ -648,6 +648,7 @@ gdscANOVA_computeDrugStats<-function(redTOTRES,fdrTH=30,pvalTH=Inf,save=TRUE,dis
     subTOTAL<-TOTAL[seq(n,1,-1),]
     
     par(xpd=TRUE)
+    
     barplot(t(subTOTAL[,c("sens assoc","res assoc")]),horiz=TRUE,las=2,col=c('purple','orange'),cex.names=2,cex.main=3,
             cex.axis=2,xlab='',cex.lab=2,names.arg=subTOTAL[1:n,"DRUGS"],
             border=FALSE,xlim=c(0,max(as.numeric(subTOTAL[,"sens assoc"])+as.numeric(subTOTAL[,"res assoc"]))),

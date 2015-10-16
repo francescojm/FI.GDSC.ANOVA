@@ -1,4 +1,4 @@
-DRUG_DOMAIN<-'AZ'
+DRUG_DOMAIN<-"A.Schully"
 
 library(stringr)
 
@@ -133,7 +133,7 @@ for (currentAnalysis in performed_analyses){
   idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
                 as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
   
-  if (length(idxs)>2){
+  if (length(idxs)>10){
     print('creating drug/feature summaries') 
     gdscANOVA_RP_create_summaries()
   }
