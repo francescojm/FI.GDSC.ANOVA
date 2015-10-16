@@ -1,4 +1,4 @@
-DRUG_DOMAIN<-'AZ'
+DRUG_DOMAIN<-'A.Schully'
 
 library(stringr)
 
