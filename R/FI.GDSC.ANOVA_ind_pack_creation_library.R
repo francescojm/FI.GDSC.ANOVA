@@ -1,4 +1,8 @@
-#load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,'SYSTEM_INFOS.rdata',sep=''))
+
+load(GDSCANOVA_SETTINGS$gdscANOVA.drugProperties.fn)
+load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
+load(GDSCANOVA_SETTINGS$gdscANOVA.screening.fn)
+
 gdscANOVA_RP_copy_html_elements<-function(PATH){
   
   fl<-dir('HTML_templates_and_elements/images/')
@@ -14,8 +18,11 @@ gdscANOVA_RP_copy_html_elements<-function(PATH){
 gdscANOVA_RP_create_individual_associations_html<-function(superSet){
     
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,GDSCANOVA_SETTINGS$gdscANOVA.settings.DRUG_domain]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+                                                                 DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   propTOTRES<-TOTRES[idxs,]
   
@@ -23,14 +30,16 @@ gdscANOVA_RP_create_individual_associations_html<-function(superSet){
   
   assoc_id<-propTOTRES[range,"assoc_id"]
   
+  
+  
   n_assoc<-length(assoc_id)
-  fromD<-paste(superSet,'OUTPUT/GRAPHICS/association_plots/',sep='')    
+  fromD<-paste(unparsed_results_dir,superSet,'/OUTPUT/GRAPHICS/association_plots/',sep='')    
   fromD<-paste(fromD,assoc_id,'_00_scatterSet.png',sep='')
   file.copy(from=fromD,to=packages_DD_DATA_HTMLEL_ASSOC_dir)  
-  fromD<-paste(superSet,'OUTPUT/GRAPHICS/association_plots/',sep='')
+  fromD<-paste(unparsed_results_dir,superSet,'/OUTPUT/GRAPHICS/association_plots/',sep='')
   fromD<-paste(fromD,assoc_id,'_01_TissueWisk.png',sep='')
   file.copy(from=fromD,to=packages_DD_DATA_HTMLEL_ASSOC_dir)
-  fromD<-paste(superSet,'OUTPUT/GRAPHICS/association_plots/',sep='')
+  fromD<-paste(unparsed_results_dir,superSet,'/OUTPUT/GRAPHICS/association_plots/',sep='')
   fromD<-paste(fromD,assoc_id,'_02_MSIWisk.png',sep='')
   file.copy(from=fromD,to=packages_DD_DATA_HTMLEL_ASSOC_dir)
   
@@ -52,26 +61,18 @@ gdscANOVA_RP_create_individual_associations_html<-function(superSet){
 }
 
 gdscANOVA_RP_create_single_assoc_html<-function(id){
-  
-  
+
   logo1<-paste('<img src=',paste('../IMAGES/sanger-logo.png',sep=''),' title=sanger-logo align="center"/>')
   logo2<-paste('<img src=',paste('../IMAGES/logo-nki.png',sep=''),' title=sanger-logo align="center"/>')
   logo3<-paste('<img src=',paste('../IMAGES/EBI_logo.png',sep=''),' title=sanger-logo align="center"/>')
   
   logos<-''
   
-  if (gdscANOVA.settings.resPackageIncludeSangerLogo){
-    logos<-paste(logos,logo1,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeNKILogo){
-    logos<-paste(logos,logo2,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeEBIlogo){
-    logos<-paste(logos,logo3,'\n') 
-  }
+  logos<-paste(logos,logo1,'\n') 
+  logos<-paste(logos,logo3,'\n') 
   
   
-  superheader <- paste('<br><br><center><font size=+2 face="Arial">',gdscANOVA.settings.resPackageHeader,'</font><br></center>\n')
+  superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project','</font><br></center>\n')
   
   author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
   
@@ -80,8 +81,8 @@ gdscANOVA_RP_create_single_assoc_html<-function(id){
   contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
   
   
-  if (gdscANOVA.settings.analysisType=='CS'){
-    ad<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+    ad<-paste(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
     ad<-'panCancer'
   }
@@ -91,6 +92,7 @@ gdscANOVA_RP_create_single_assoc_html<-function(id){
   body<-paste(logos,superheader,author,timestamp,contact,owner)
   
   testo <- paste('<font size=+1 face="Arial">Individual association analysis:',id,'</font><br>\n')
+  
   body<-paste(body,testo)
   
   resLINE<-TOTRES[which(TOTRES[,"assoc_id"]==id),]
@@ -104,21 +106,20 @@ gdscANOVA_RP_create_single_assoc_html<-function(id){
   body<-paste(body,AT)
   
   body<-paste(body,'<br>')
-  
-  
+
   scatters<-paste('<center><img src=',paste('./',id,'_00_scatterSet.png',sep=''),' width=1200 height=800 title=scatter-set align="center"/></center>')
   
   body<-paste(body,scatters)
   
   body<-paste(body,'<br>')
-  if(gdscANOVA.settings.analysisType!='CS'){
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType!='CS'){
     scatters<-paste('<img src=',paste('./',id,'_01_TissueWisk.png',sep=''),' width=500 height=707 title=tissue-wisk align="center"/>')
     body<-paste(body,scatters)
     
     body<-paste(body,'<br>')
   }
   
-  if(gdscANOVA.settings.includeMSI_Factor){
+  if(GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType!='CS' & GDSCANOVA_SETTINGS$gdscANOVA.settings.includeMSI_Factor){
     scatters<-paste('<img src=',paste('./',id,'_02_MSIWisk.png',sep=''),' width=505 height=707 title=msi-wisk align="center"/>')
     body<-paste(body,scatters)
   }
@@ -133,11 +134,11 @@ gdscANOVA_RP_all_assoc_summary_body<-function(redTOTRES){
     redTOTRES<-matrix(redTOTRES,nrow = 1,ncol=length(redTOTRES),dimnames = list(NULL,names(redTOTRES)))
   }
   
-  if(gdscANOVA.settings.CELL_LINES=='PANCAN'){
-    range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)  
+  if(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES=='PANCAN'){
+    range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)  
   }else{
-    range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH &
-                   as.numeric(redTOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH)
+    range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH &
+                   as.numeric(redTOTRES[,"FEATURE_ANOVA_pval"])< GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH)
   }
   
   
@@ -154,6 +155,7 @@ gdscANOVA_RP_all_assoc_summary_body<-function(redTOTRES){
                   <td><b><center>Drug id</center></b></td>
                   <td><b><center>Propr</center></b></td>
                   <td><b><center>Public</center></b></td>
+                  <td><b><center>Owned by</center></b></td>
                   <td><b><center>Drug Name</center></b></td>
                   <td><b><center>Drug Target</center></b></td>
                   <td><b><center>N FEATURE pos</center></b></td>
@@ -172,11 +174,13 @@ gdscANOVA_RP_all_assoc_summary_body<-function(redTOTRES){
   
   tail<-paste('</tr>\n</table></center>')
   
-  DID<-redTOTRES[range,'Drug id']
+  DID<-unlist(str_split(redTOTRES[range,'Drug id'],'_'))[seq(1,nrow(redTOTRES)*2,2)]
   
-  posit<-match(DID,DRUG_BY_COMPANIES$DRUG_ID)
+  posit<-match(DID,DRUG_BY_COMPANIES[,'DRUG_ID'])
   
-  publicDRUG<-DRUG_BY_COMPANIES[posit,"GDSC1000_paper_set"]
+  owners<-DRUG_PROPS[as.character(DID),'OWNED_BY']
+  
+  publicDRUG<-DRUG_BY_COMPANIES[posit,"Web Released"]
   proprDRUG<-DRUG_BY_COMPANIES[posit,DrugDomain]
   
   publicDRUGCOLOR<-rep('white',length(publicDRUG))
@@ -203,7 +207,10 @@ gdscANOVA_RP_all_assoc_summary_body<-function(redTOTRES){
       body<-paste(body,currentLine)
       currentLine<-paste('<td bgcolor=',publicDRUGCOLOR[i],'><center>',as.character(publicDRUG[i]),'</center></td>\n',sep='')
       body<-paste(body,currentLine)
-            
+      
+      currentLine<-paste('<td><center>',owners[i],'</center></td>\n',sep='')
+      body<-paste(body,currentLine)
+                  
       currentLine<-paste('<td><center>',as.character(redTOTRES[i,"Drug name"]),'</center></td>\n',sep='')
       body<-paste(body,currentLine)
       currentLine<-paste('<td><center>',as.character(redTOTRES[i,"Drug Target"]),'</center></td>\n',sep='')
@@ -339,8 +346,8 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
   
   contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
   
-  if (gdscANOVA.settings.analysisType=='CS'){
-    ad<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+    ad<-paste(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
     ad<-'panCancer'
   }
@@ -349,8 +356,8 @@ gdscANOVA_RP_all_assoc_summary<-function(redTOTRES,PATH){
   
   
   print('creating all associations summary')
-  range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH &
-                 as.numeric(redTOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH)
+  range<-which(as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH &
+                 as.numeric(redTOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH)
   
   
   nn<-length(range)
@@ -544,29 +551,32 @@ gdscANOVA_RP_create_individual_drug_html<-function(superSet){
   
   
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   DIDS<-unique(TOTRES[idxs,"Drug id"])
   
   
   n_drugs<-length(DIDS)
   
-  fromD<-paste(superSet,'OUTPUT/GRAPHICS/DRUG_volcanos/',sep='')    
-  fromD<-paste(fromD,DIDS,'.png',sep='')
+  fromD<-paste(unparsed_results_dir,superSet,'/OUTPUT/GRAPHICS/DRUG_volcanos/',sep='')    
+  fromD<-paste(fromD,str_replace(DIDS,'/','_'),'.png',sep='')
   file.copy(from=fromD,to=packages_DD_DATA_HTMLEL_DRUG_dir)  
   
+  if (length(idxs)>0){
+    
+    pb <- txtProgressBar(min=1,max=n_drugs,style=3)
   
-
-  pb <- txtProgressBar(min=1,max=n_drugs,style=3)
+    for (i in 1:n_drugs){
+      setTxtProgressBar(pb,i)
+      gdscANOVA_RP_create_single_drug_html(DIDS[i])
+    }
   
-  for (i in 1:n_drugs){
-    setTxtProgressBar(pb,i)
-    gdscANOVA_RP_create_single_drug_html(DIDS[i])
+    Sys.sleep(1)
+    close(pb)
   }
-  
-  Sys.sleep(1)
-  close(pb)
 }
 gdscANOVA_RP_create_single_drug_html<-function(id){
   
@@ -576,17 +586,10 @@ gdscANOVA_RP_create_single_drug_html<-function(id){
   
   logos<-''
   
-  if (gdscANOVA.settings.resPackageIncludeSangerLogo){
-    logos<-paste(logos,logo1,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeNKILogo){
-    logos<-paste(logos,logo2,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeEBIlogo){
-    logos<-paste(logos,logo3,'\n') 
-  }
+  logos<-paste(logos,logo1,'\n') 
+  logos<-paste(logos,logo3,'\n') 
   
-  superheader <- paste('<br><br><center><font size=+2 face="Arial">',gdscANOVA.settings.resPackageHeader,'</font><br></center>\n')
+  superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project','</font><br></center>\n')
   
   author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
   
@@ -594,8 +597,8 @@ gdscANOVA_RP_create_single_drug_html<-function(id){
   
   contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
   
-  if (gdscANOVA.settings.analysisType=='CS'){
-    ad<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+    ad<-paste(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
     ad<-'panCancer'
   }
@@ -608,12 +611,12 @@ gdscANOVA_RP_create_single_drug_html<-function(id){
   
   body<-paste(body,testo)
   
-  drugName<-DRUG_PROPS[id,"DRUG_NAME"]
-  drugSynonyms<-DRUG_PROPS[id,"SYNONYMS"]
-  drugBrandName<-DRUG_PROPS[id,"BRAND_NAME"]
-  drugTarget<-DRUG_PROPS[id,"PUTATIVE_TARGET"]
+  drugName<-DRUG_PROPS[str_split(id,'_')[[1]][1],"DRUG_NAME"]
+  drugSynonyms<-DRUG_PROPS[str_split(id,'_')[[1]][1],"SYNONYMS"]
+  drugBrandName<-DRUG_PROPS[str_split(id,'_')[[1]][1],"OWNED_BY"]
+  drugTarget<-DRUG_PROPS[str_split(id,'_')[[1]][1],"PUTATIVE_TARGET"]
   
-  concRange<-unique(maxConcTested[,id])
+  concRange<-unique(as.numeric(maxConcTested[,id]))
   
   concRange<-concRange[!is.na(concRange)]
   
@@ -637,7 +640,7 @@ gdscANOVA_RP_create_single_drug_html<-function(id){
   body<-paste(body,bunch)
   bunch<-paste('<font face="Arial">Synonyms:',drugSynonyms,'</font><br>\n')
   body<-paste(body,bunch)
-  bunch<-paste('<font face="Arial">Brand name:',drugBrandName,'</font><br>\n')
+  bunch<-paste('<font face="Arial">Owned By:',drugBrandName,'</font><br>\n')
   body<-paste(body,bunch)
   bunch<-paste('<font face="Arial">Target:',drugTarget,'</font><br>\n')
   body<-paste(body,bunch)
@@ -666,13 +669,16 @@ gdscANOVA_RP_create_single_drug_html<-function(id){
   
   body <- paste(body,vp)
 
-  write(body, file = paste(packages_DD_DATA_HTMLEL_DRUG_dir,id,".html",sep=''),append=FALSE)
+  write(body, file = paste(packages_DD_DATA_HTMLEL_DRUG_dir,str_replace(id,'/','_'),".html",sep=''),append=FALSE)
 }
+
 gdscANOVA_RP_create_individual_feature_html<-function(superSet){
   
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   propTOTRES<-TOTRES[idxs,]
   
@@ -681,19 +687,25 @@ gdscANOVA_RP_create_individual_feature_html<-function(superSet){
   n_feat<-length(feat)
   
   nn<-n_feat
-  if (nn<=1){nn<-2}
-  pb <- txtProgressBar(min=1,max=nn,style=3)
   
-    for (i in 1:n_feat){
-      setTxtProgressBar(pb,i)
-      gdscANOVA_RP_create_single_feat_html(propTOTRES=propTOTRES,feat[i])
+  if (length(idxs)>0){
+    
+  
+    if (nn<=1){nn<-2}
+    pb <- txtProgressBar(min=1,max=nn,style=3)
+  
+      for (i in 1:n_feat){
+        setTxtProgressBar(pb,i)
+        gdscANOVA_RP_create_single_feat_html(propTOTRES=propTOTRES,feat[i],superSet = superSet)
+      }
+  
+      Sys.sleep(1)
+      close(pb)
     }
-  
-    Sys.sleep(1)
-    close(pb)
-  
 }
-gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff){
+
+gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff,superSet){
+  load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,superSet,'/INPUT/','InputFeatures.rdata',sep=''))
   ORF<-ff
   gdscANOVA_FEATURE_volcanoPlot(FEATURE=ff,print=TRUE,cTOTRES=propTOTRES,PATH=packages_DD_DATA_HTMLEL_FEATURE_dir)
   
@@ -703,16 +715,10 @@ gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff){
   
   logos<-''
   
-  if (gdscANOVA.settings.resPackageIncludeSangerLogo){
-    logos<-paste(logos,logo1,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeNKILogo){
-    logos<-paste(logos,logo2,'\n') 
-  }
-  if (gdscANOVA.settings.resPackageIncludeEBIlogo){
-    logos<-paste(logos,logo3,'\n') 
-  }
-  superheader <- paste('<br><br><center><font size=+2 face="Arial">',gdscANOVA.settings.resPackageHeader,'</font><br></center>\n')
+  logos<-paste(logos,logo1,'\n') 
+  logos<-paste(logos,logo3,'\n') 
+  
+  superheader <- paste('<br><br><center><font size=+2 face="Arial">','Result package from the GDSC1000 project','</font><br></center>\n')
   
  
   author<-paste('<br><center><font font size=-1 face="Arial" color="gray"><i>Francesco Iorio, EMBL - European Bioinformatics Institute','</i></font><br></center>\n')
@@ -721,8 +727,8 @@ gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff){
    
   contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
    
-  if (gdscANOVA.settings.analysisType=='CS'){
-    ad<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+    ad<-paste(GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
     ad<-'panCancer'
   }
@@ -783,12 +789,16 @@ gdscANOVA_RP_create_single_feat_html<-function(propTOTRES,ff){
 }
 gdscANOVA_RP_create_MANOVA_INPUT_OUTPUT_files<-function(superSet){
   
-  #load('NGS/DATA/R/NGS_BEM_01052014.ro')
+  load(paste(GDSCANOVA_SETTINGS$gdscANOVA.results.dir,superSet,'/INPUT/','InputFeatures.rdata',sep=''))
+  load(GDSCANOVA_SETTINGS$annotations.master_list.fn)
   
-  drug_ids<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 | 
-                                                            DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
+  drug_ids<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
+                                                     DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
   
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids))
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  
+  idxs<-which(is.element(did_in_totres,drug_ids))
+  
   proprietaryTOTRES<-TOTRES[idxs,]
   
   save(proprietaryTOTRES,file=paste(packages_DD_DATA_OUTPUT_dir,'ANOVA_results.rdata',sep=''))
@@ -827,8 +837,11 @@ gdscANOVA_RP_create_MANOVA_INPUT_OUTPUT_files<-function(superSet){
     
     cl<-intersect(rownames(manova_INPUT),rownames(IC50s))
     
+    dids<-unlist(str_split(colnames(IC50s),'_'))[seq(1,ncol(IC50s)*2,2)]
+    idxs<-which(DRUG_BY_COMPANIES[dids,'Web Released']>0 | DRUG_BY_COMPANIES[dids,DRUG_DOMAIN]>0)  
+  
     manova_INPUT<-cbind(cl,MASTER_LIST[cl,"Analysis.Set.Name"],InputFeatures$TISSUES[cl],
-                  InputFeatures$MSI_VARIABLE[cl],t(InputFeatures$BEM[,cl]),IC50s[cl,])
+                  InputFeatures$MSI_VARIABLE[cl],t(InputFeatures$BEM[,cl]),IC50s[cl,idxs])
         
     colnames(manova_INPUT)[1:4]<-c('COSMIC ID','Sample Name','Tissue Factor Value','MS-instability Factor Value')
     colnames(manova_INPUT)[(5+nrow(InputFeatures$BEM)):ncol(manova_INPUT)]<-paste('Drug_',colnames(manova_INPUT)[(5+nrow(InputFeatures$BEM)):ncol(manova_INPUT)],'_IC50',sep='')
@@ -838,7 +851,8 @@ gdscANOVA_RP_create_MANOVA_INPUT_OUTPUT_files<-function(superSet){
 gdscANOVA_RP_create_DRUG_DECODE_file<-function(){
   
   drug_ids<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                            DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
+                                                     DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
   
   DRUG_DECODE<-DRUG_PROPS[drug_ids,1:3]
   
@@ -846,9 +860,11 @@ gdscANOVA_RP_create_DRUG_DECODE_file<-function(){
 }
 gdscANOVA_RP_create_comprehensive_vp<-function(){
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
   
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+ 
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   panpTOTRES<-TOTRES[idxs,]
   
@@ -865,16 +881,17 @@ gdscANOVA_RP_create_comprehensive_vp<-function(){
 
 gdscANOVA_RP_create_summaries<-function(){
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                        DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
   
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   panpTOTRES<-TOTRES[idxs,]
   
-  gdscANOVA_computeFeatureStats(redTOTRES=panpTOTRES,fdrTH = gdscANOVA.settings.FDR_TH,pvalTH = gdscANOVA.settings.pval_TH,
+  gdscANOVA_computeFeatureStats(redTOTRES=panpTOTRES,fdrTH =   GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,pvalTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH,
                                 save=TRUE,display=TRUE,printTOfig=TRUE,PATH=paste(packages_DD_DATA_OUTPUT_dir,
                                                                                              'FeatureSummary',sep=''))
-  gdscANOVA_computeDrugStats(redTOTRES=panpTOTRES,fdrTH = gdscANOVA.settings.FDR_TH,pvalTH = gdscANOVA.settings.pval_TH,
+  gdscANOVA_computeDrugStats(redTOTRES=panpTOTRES,fdrTH =   GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,pvalTH = GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH,
                              save=TRUE,display=TRUE,printTOfig=TRUE,PATH=paste(packages_DD_DATA_OUTPUT_dir,
                                                                                           'DrugSummary',sep=''))
 }
@@ -909,8 +926,8 @@ gdscANOVA_RP_start_page_creation<-function(superSet,PATH,packageName){
   contact<-paste('<center><font font size=-1 face="Arial"><a href="mailto:iorio@ebi.ac.uk?Subject=from%20GDSC%20Data-Package%20user" target="_top">iorio@ebi.ac.uk</a></font></center>')
   
   
-  if (gdscANOVA.settings.analysisType=='CS'){
-    ad<-paste(gdscANOVA.settings.CELL_LINES,'specific')
+  if (GDSCANOVA_SETTINGS$gdscANOVA.settings.analysisType=='CS'){
+    ad<-paste(  GDSCANOVA_SETTINGS$gdscANOVA.settings.CELL_LINES,'specific')
   }else{
     ad<-'panCancer'
   }
@@ -940,8 +957,8 @@ gdscANOVA_RP_start_page_creation<-function(superSet,PATH,packageName){
   
   body<-paste(body,link1)
   
-  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH)
+  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
   
   if(length(idxs)>2){
     results_summary<-gdscANOVA_RP_analysis_summary(superSet=superSet,DrugDomain=DrugDomain)
@@ -986,15 +1003,15 @@ gdscANOVA_RP_retrieveAnalysisInfo<-function(){
   MSIinclusion<-paste('<font size=-1 face="Arial">MicroSatellite instability included as factor = ',as.logical(gdscANOVA.settings.includeMSI_Factor),'</font><br><br>\n<hr>')
   
     
-  total_number_of_significant_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                                                  as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH))
+  total_number_of_significant_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                                                  as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH))
   
-  total_number_of_significant_sens_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                                                  as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH &
+  total_number_of_significant_sens_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                                                  as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH &
                                                  as.numeric(TOTRES[,"FEATURE_deltaMEAN_IC50"])<0))
 
-  total_number_of_significant_res_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                                                     as.numeric(TOTRES[,"ANOVA FEATURE FDR %"]<gdscANOVA.settings.FDR_TH) &
+  total_number_of_significant_res_ass<-length(which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                                                     as.numeric(TOTRES[,"ANOVA FEATURE FDR %"]<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH) &
                                                as.numeric(TOTRES[,"FEATURE_deltaMEAN_IC50"])>0))
 
 
@@ -1002,18 +1019,18 @@ gdscANOVA_RP_retrieveAnalysisInfo<-function(){
   nsigHits<-paste('<font size=-1 face="Arial">Total number of significant associations: ',total_number_of_significant_ass,' (',total_number_of_significant_sens_ass,
 ' for sensitivity and ', total_number_of_significant_res_ass,' for resistance)</font><br><br>\n',sep='')
   
-  thresholds<-paste('<font size=-1 face="Arial">p-value significance threshold: ',gdscANOVA.settings.pval_TH,
-                    ', % FDR significance threshold: ',gdscANOVA.settings.FDR_TH,'</font><br><br>\n',sep='')
+  thresholds<-paste('<font size=-1 face="Arial">p-value significance threshold: ',GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH,
+                    ', % FDR significance threshold: ',  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH,'</font><br><br>\n',sep='')
 
-  pp<-as.numeric(TOTRES[which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                     as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH),"FEATURE_ANOVA_pval"])
+  pp<-as.numeric(TOTRES[which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                     as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH),"FEATURE_ANOVA_pval"])
   
   minPval<-format(min(pp),digits=3,scientific = TRUE)
   maxPval<-format(max(pp),digits=3,scientific = TRUE)
   pvalranges<-paste('<font size=-1 face="Arial">range of significant p-values: [',minPval,', ',maxPval,']','</font><br><br>\n',sep='')
   
-  pp<-as.numeric(TOTRES[which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<gdscANOVA.settings.pval_TH &
-                              as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<gdscANOVA.settings.FDR_TH),"ANOVA FEATURE FDR %"])
+  pp<-as.numeric(TOTRES[which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                              as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<  GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH),"ANOVA FEATURE FDR %"])
 
   minPval<-format(min(pp),digits=3,scientific = FALSE)
   maxPval<-format(max(pp),digits=3,scientific = FALSE)
@@ -1077,8 +1094,10 @@ gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain)
   body<-''
   
   drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
-                                                                 DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   redTOTRES<-TOTRES[idxs,]
   
@@ -1090,9 +1109,13 @@ gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain)
   
   body<-paste(body,bunch)
   
-  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 &
-                                                        DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  didintotres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(2,nrow(TOTRES)*2,2)]
+
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   DIDS<-sort(unique(TOTRES[idxs,"Drug id"]))
   
@@ -1115,9 +1138,13 @@ gdscANOVA_RP_results_browsing<-function(superSet=superSet,DrugDomain=DrugDomain)
   
   body<-paste(body,bunch)
   
-  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 &
-                                                        DRUG_BY_COMPANIES[,"GDSC1000_paper_set"]==1),'DRUG_ID'])
-  idxs<-which(is.element(TOTRES[,'Drug id'],drug_ids_panp))
+  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DrugDomain]==1 |
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
   
   FF<-sort(unique(TOTRES[idxs,"FEATURE"]))
   
