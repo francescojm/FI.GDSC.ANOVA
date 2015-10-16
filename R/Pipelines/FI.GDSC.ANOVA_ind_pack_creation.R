@@ -1,5 +1,7 @@
 DRUG_DOMAIN<-"A.Schully"
 
+DRUG_DOMAIN<-'A.Schully'
+
 library(stringr)
 
 source('R/FI.GDSC.ANOVA.Preamble_Library.R')
