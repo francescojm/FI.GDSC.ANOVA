@@ -41,7 +41,6 @@ load('../../Data/Cell_lines/Annotations/IncludeMSIfactor.rdata')
 
 nCancerTypes<-length(CancerTypes)
 
-CancerTypes<-CancerTypes[3:length(CancerTypes)]
 
 for (i in 1:nCancerTypes){
   
