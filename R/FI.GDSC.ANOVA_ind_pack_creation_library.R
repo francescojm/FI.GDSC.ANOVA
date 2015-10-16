@@ -7,16 +7,24 @@ load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
 
 gdscANOVA_RP_finalDiagnosis<-function(TOTRES){
   
-  idxs<-which(as.numeric(TOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
-                as.numeric(TOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
+  drug_ids_panp<-as.character(DRUG_BY_COMPANIES[which(DRUG_BY_COMPANIES[,DRUG_DOMAIN]==1 |
+                                                        DRUG_BY_COMPANIES[,"Web Released"]==1),'DRUG_ID'])
+  
+  did_in_totres<-unlist(str_split(TOTRES[,'Drug id'],'_'))[seq(1,nrow(TOTRES)*2,2)]
+  idxs<-which(is.element(did_in_totres,drug_ids_panp))
+  
+  redTOTRES<-TOTRES[idxs,]
+  
+  idxs<-which(as.numeric(redTOTRES[,"FEATURE_ANOVA_pval"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.pval_TH &
+                as.numeric(redTOTRES[,"ANOVA FEATURE FDR %"])<GDSCANOVA_SETTINGS$gdscANOVA.settings.FDR_TH)
   
   TotalNumberOfHits<-length(idxs)
   
   if (length(idxs)>0){
-    InvolvedProprietaryDrugs<-sum(1-DRUG_BY_COMPANIES[unique(unlist(str_split(TOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
+    InvolvedProprietaryDrugs<-sum(1-DRUG_BY_COMPANIES[unique(unlist(str_split(redTOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
     OutOfPropDrugs<-length(which(DRUG_PROPS$OWNED_BY==DRUG_DOMAIN & DRUG_PROPS$WEBRELEASE!='Y'))
   
-    InvolvedPublicDrugs<-sum(DRUG_BY_COMPANIES[unique(unlist(str_split(TOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
+    InvolvedPublicDrugs<-sum(DRUG_BY_COMPANIES[unique(unlist(str_split(redTOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
     OutOfPublicDrugs<-length(which(DRUG_PROPS$WEBRELEASE=='Y'))
   
     RES<-c(TotalNumberOfHits,InvolvedProprietaryDrugs,OutOfPropDrugs,InvolvedPublicDrugs,OutOfPublicDrugs)

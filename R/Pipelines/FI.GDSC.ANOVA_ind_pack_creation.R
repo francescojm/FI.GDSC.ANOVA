@@ -1,5 +1,3 @@
-DRUG_DOMAIN<-"A.Schully"
-
 DRUG_DOMAIN<-'A.Schully'
 
 library(stringr)
