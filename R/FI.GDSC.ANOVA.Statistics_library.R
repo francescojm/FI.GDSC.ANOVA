@@ -1,24 +1,41 @@
-###########################################################################
-#                                                                         #
-#   Project: GDSC1000_ANOVA                                               #
-#                                                                         #  
-#   File: Statistics_library.R                                            #  
-#                                                                         #
-###########################################################################
+#############################################################################
+#                                                                           #
+#   Project: FI.GDSC.ANOVA                                                  #
+#   Version: 1.0                                                            #
+#   Description: Scripts and R functions used to perform a systematic       #
+#                analysis of variance to identify statistical interactions  #
+#                                                                           #
+#   File: FI.GDSC.ANOVA.Statistics_library.R                                #
+#                                                                           #
+#   Copyright (c) 2014 - 2019, EMBL - European Bioinformatics Institute     #
+#                                                                           #
+#       Author: Francesco Iorio (iorio@ebi.ac.uk)                           #
+#       Distributed under the Apache 2.0 License.                           #
+#                                                                           #
+#############################################################################
 
 
-
-#' @title Effect Size through Cohen's D
-#' 
+#' @title Effect Size of a statistical interaction through Cohen's D computation
+#' @author Francesco Iorio - \email{iorio@@ebi.ac.uk}
 #' @description
-#' \code{gdscANOVA_cohens_d(x,y)} returns the effect size of the interaction between the values in the set given by the union of x and y and the factor inducing the dychotomy \eqn{{x,y}} onto it 
+#' \code{gdscANOVA_cohens_d(x,y)} returns the effect size of the statistical interaction between a variable and an underlying binary factor.
+#' It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value (positive or negative).
+#' 
+#' @usage gdscANOVA_cohens_d(x,y)
+#' 
+#' @param x Numerical vector containing the variable observations corresponding to the positive values of the underlying factor.
+#' @param y Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.   
 #'
+#' @return The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation. {x - y} 
 #' @seealso gdscANOVA_glass_Ds
+#' 
+#' 
 gdscANOVA_cohens_d <- function(x, y) {
   lx <- length(x)- 1
   ly <- length(y)- 1
   
   md  <- abs(mean(x) - mean(y))        ## mean difference (numerator)
+  
   csd <- lx * var(x) + ly * var(y)
   csd <- csd/(lx + ly)
   csd <- sqrt(csd)                     ## common sd computation

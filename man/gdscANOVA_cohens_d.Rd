@@ -2,12 +2,24 @@
 % Please edit documentation in R/FI.GDSC.ANOVA.Statistics_library.R
 \name{gdscANOVA_cohens_d}
 \alias{gdscANOVA_cohens_d}
-\title{Effect Size through Cohen's D}
+\title{Effect Size of a statistical interaction through Cohen's D computation}
 \usage{
-gdscANOVA_cohens_d(x, y)
+gdscANOVA_cohens_d(x,y)
+}
+\arguments{
+\item{x}{Numerical vector containing the variable observations corresponding to the positive values of the underlying factor.}
+
+\item{y}{Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.}
+}
+\value{
+The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation. \eq{x - y}
 }
 \description{
-\code{gdscANOVA_cohens_d(x,y)} returns the effect size of the interaction between the values in the set given by the union of x and y and the factor inducing the dychotomy \eqn{{x,y}} onto it
+\code{gdscANOVA_cohens_d(x,y)} returns the effect size of the statistical interaction between a variable and an underlying binary factor.
+It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value (positive or negative).
+}
+\author{
+Francesco Iorio - \email{iorio@ebi.ac.uk}
 }
 \seealso{
 gdscANOVA_glass_Ds

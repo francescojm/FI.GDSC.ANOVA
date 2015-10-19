@@ -8,7 +8,7 @@
   gdscANOVA_Preamble(ANOVA_setting_file = "HTML_templates_and_elements/FI.GDSC.ANOVA.Settings_file_template.csv")
 }
 \description{
-\code{gdscANOVA_Preamble(ANOVA_setting_file)} returns a list containing global variables
+\code{gdscANOVA_Preamble(ANOVA_setting_file)} returns a list of setting variables
 initilized with the values contained in the ANOVA_settig_file [see an example of this file
 in the HTML_templates_and_elements/FI.GDSC.ANOVA.Settings_file_template.csv]
 }

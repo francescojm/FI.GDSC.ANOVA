@@ -1,8 +1,8 @@
 
-load(GDSCANOVA_SETTINGS$gdscANOVA.drugProperties.fn)
-load(GDSCANOVA_SETTINGS$gdscANOVA.screening.fn)
-load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
-load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
+# load(GDSCANOVA_SETTINGS$gdscANOVA.drugProperties.fn)
+# load(GDSCANOVA_SETTINGS$gdscANOVA.screening.fn)
+# load(GDSCANOVA_SETTINGS$gdscANOVA.maxTestedConc.fn)
+# load(GDSCANOVA_SETTINGS$gdscANOVA.drugOwnership.fn)
 
 
 gdscANOVA_RP_finalDiagnosis<-function(TOTRES){
