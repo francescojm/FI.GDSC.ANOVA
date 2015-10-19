@@ -1,4 +1,4 @@
-DRUG_DOMAIN<-'A.Schully'
+
 
 library(stringr)
 
@@ -151,9 +151,10 @@ for (currentAnalysis in performed_analyses){
 rownames(finalDiag)<-performed_analyses
 
 URLdir<-str_replace_all(current_dir,' ','%20')
+URLDRUG_DOMAIN<-str_replace_all(DRUG_DOMAIN,' ','%20')
 
-logo1<-paste('<img src=','./',DRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/sanger-logo.png',' title=sanger-logo align="center"/>',sep='')
-logo3<-paste('<img src=','./',DRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/EBI_logo.png',' title=sanger-logo align="center"/>',sep='')
+logo1<-paste('<img src=','./',URLDRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/sanger-logo.png',' title=sanger-logo align="center"/>',sep='')
+logo3<-paste('<img src=','./',URLDRUG_DOMAIN,'/',URLdir,'/DATA/HTML_elements/IMAGES/EBI_logo.png',' title=sanger-logo align="center"/>',sep='')
 
 logos<-paste(logo1,logo3,'\n')
 
@@ -177,9 +178,9 @@ header <- paste('<center><font size=+2 face="Arial">Individual ANOVAs Results Su
                   <center><table border=1 width=100% cellspacing=1 cellpadding=2 cols=7 style="font-family: Arial; font-size: 13px">\n
                   <tr><td><b><center>Analysis name:</center></b></td>
                   <td><b><center>Number of hits:</center></b></td>
-                  <td><b><center>Involving Proprietary compounds:</center></b></td>
+                  <td><b><center>n. Involved Proprietary compounds:</center></b></td>
                   <td><b><center>out of:</center></b></td>
-                  <td><b><center>Involving Public compounds:</center></b></td>
+                  <td><b><center>n. Involved Public compounds:</center></b></td>
                   <td><b><center>out of:</center></b></td></tr>\n')
 
 tail<-paste('</tr>\n</table></center>')

@@ -22,15 +22,25 @@ gdscANOVA_RP_finalDiagnosis<-function(TOTRES){
   
   if (length(idxs)>0){
     InvolvedProprietaryDrugs<-sum(1-DRUG_BY_COMPANIES[unique(unlist(str_split(redTOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
-    OutOfPropDrugs<-length(which(DRUG_PROPS$OWNED_BY==DRUG_DOMAIN & DRUG_PROPS$WEBRELEASE!='Y'))
   
     InvolvedPublicDrugs<-sum(DRUG_BY_COMPANIES[unique(unlist(str_split(redTOTRES[idxs,"Drug id"],'_'))[seq(1,length(idxs)*2,2)]),'Web Released'])
-    OutOfPublicDrugs<-length(which(DRUG_PROPS$WEBRELEASE=='Y'))
   
-    RES<-c(TotalNumberOfHits,InvolvedProprietaryDrugs,OutOfPropDrugs,InvolvedPublicDrugs,OutOfPublicDrugs)
   }else{
-    RES<-c(0,0,0,0)
+    InvolvedProprietaryDrugs<-0
+    InvolvedPublicDrugs<-0
   }
+  
+  
+  if (DRUG_DOMAIN!="All available in v18"){
+    OutOfPropDrugs<-length(which(DRUG_PROPS$OWNED_BY==DRUG_DOMAIN & DRUG_PROPS$WEBRELEASE!='Y'))  
+  }else{
+    OutOfPropDrugs<-length(which(is.na(DRUG_PROPS$WEBRELEASE) | DRUG_PROPS$WEBRELEASE!='Y'))
+  }
+  
+  OutOfPublicDrugs<-length(which(DRUG_PROPS$WEBRELEASE=='Y'))
+  
+  RES<-c(TotalNumberOfHits,InvolvedProprietaryDrugs,OutOfPropDrugs,InvolvedPublicDrugs,OutOfPublicDrugs)
+  
   return(RES)
 }
 
