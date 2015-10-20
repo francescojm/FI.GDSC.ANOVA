@@ -12,10 +12,10 @@ gdscANOVA_cohens_d(x,y)
 \item{y}{Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.}
 }
 \value{
-The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation. \eq{x - y}
+The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation.
 }
 \description{
-\code{gdscANOVA_cohens_d(x,y)} returns the effect size of the statistical interaction between a variable and an underlying binary factor.
+\code{gdscANOVA_cohens_d(x,y)} \cr\cr returns the effect size of the statistical interaction between a variable and an underlying binary factor.
 It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value (positive or negative).
 }
 \author{

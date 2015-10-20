@@ -2,26 +2,33 @@
 % Please edit documentation in R/FI.GDSC.ANOVA.Statistics_library.R
 \name{gdscANOVA_individualANOVA}
 \alias{gdscANOVA_individualANOVA}
-\title{Individual ANOVA test
-Calling this function requires the existance of the following global variables
-(created through the functions in Data_Manipulation_Library.R, Preamble.R, or loaded from relevant R objects):
-           IC50s = Matrix with IC50 values
-           InputFeatures = Structure containing the input features to be correlated with drug response
-           gdscANOVA.settings.featFactorPopulationTh = How many sample that are positive for a given feature must be present in order for the test to be performed
-           gdscANOVA.settings.includeMSI_Factor = Boolean variable specifying if the Microsatellite instability status of the samples should be included as co-factor
-           gdscANOVA.settings.MSIfactorPopulationTh = How many MicroSatellite instable samples must be present in order for the test to be performed}
+\title{Individual ANOVA test}
 \usage{
-gdscANOVA_individualANOVA(DRUG_ID, FEATURE, display = TRUE,
-  printTOfig = FALSE, PATH = "", FN = "", FDR = NA, OUTPUT_PATH = "")
+A
+}
+\arguments{
+\item{A}{}
+
+\item{A}{}
+}
+\value{
+A
 }
 \description{
-Individual ANOVA test
-Calling this function requires the existance of the following global variables
-(created through the functions in Data_Manipulation_Library.R, Preamble.R, or loaded from relevant R objects):
-           IC50s = Matrix with IC50 values
-           InputFeatures = Structure containing the input features to be correlated with drug response
-           gdscANOVA.settings.featFactorPopulationTh = How many sample that are positive for a given feature must be present in order for the test to be performed
-           gdscANOVA.settings.includeMSI_Factor = Boolean variable specifying if the Microsatellite instability status of the samples should be included as co-factor
-           gdscANOVA.settings.MSIfactorPopulationTh = How many MicroSatellite instable samples must be present in order for the test to be performed
+\code{gdscANOVA_individualANOVA(DRUG_ID, FEATURE, display=TRUE, printTOfig=FALSE, PATH='', FN='', FDR=NA, OUTPUT_PATH='')} \cr\cr
+executes an individual ANOVA test to evaluate the statistical interaction between the IC50 values of a given drug, across cell lines, and an underlying
+binary factor. \cr\cr
+Calling this function requires the existance of the following global variables:\cr
+\itemize{
+  \item IC50s = Matrix with IC50 values
+  \item InputFeatures = Structure containing the input features to be correlated with drug response\cr
+  \item GDSCANOVA_SETTINGS = How many sample that are positive for a given feature must
+}
+}
+\author{
+Francesco Iorio - \email{iorio@ebi.ac.uk}
+}
+\seealso{
+A
 }
 

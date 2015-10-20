@@ -18,34 +18,35 @@
 #' @title Effect Size of a statistical interaction through Cohen's D computation
 #' @author Francesco Iorio - \email{iorio@@ebi.ac.uk}
 #' @description
-#' \code{gdscANOVA_cohens_d(x,y)} returns the effect size of the statistical interaction between a variable and an underlying binary factor.
+#' \code{gdscANOVA_cohens_d(x,y)} \cr\cr returns the effect size of the statistical interaction between a variable and an underlying binary factor.
 #' It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value (positive or negative).
-#' 
-#' @usage gdscANOVA_cohens_d(x,y)
-#' 
+#' @usage gdscANOVA_cohens_d(x,y) 
 #' @param x Numerical vector containing the variable observations corresponding to the positive values of the underlying factor.
 #' @param y Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.   
-#'
-#' @return The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation. {x - y} 
+#' @return The Cohen's d, defined as the difference between the means of the two vector, divided by their pooled standard deviation.       
 #' @seealso gdscANOVA_glass_Ds
-#' 
-#' 
 gdscANOVA_cohens_d <- function(x, y) {
   lx <- length(x)- 1
   ly <- length(y)- 1
-  
   md  <- abs(mean(x) - mean(y))        ## mean difference (numerator)
-  
   csd <- lx * var(x) + ly * var(y)
   csd <- csd/(lx + ly)
   csd <- sqrt(csd)                     ## common sd computation
-  
   cd  <- md/csd                        ## cohen's d
 }
 
-
-
-#' Effect size through Glass Ds
+#' @title Effect Size of a statistical interaction through individual Glass Delta
+#' @author Francesco Iorio - \email{iorio@@ebi.ac.uk}
+#' @description
+#' \code{gdscANOVA_glass_Ds(x,y)} \cr\cr returns two numerical scores quantifying the effect sizes of the statistical interaction between a variable and an
+#' underlying binary factor. It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value
+#' (positive or negative).
+#' @usage gdscANOVA_glass_Ds(x,y) 
+#' @param x Numerical vector containing the variable observations corresponding to the positive values of the underlying factor.
+#' @param y Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.   
+#' @return A list of two Glass Deltas, defined as the difference between the means of the two vector, divided by the standard deviations of the two groups
+#' respectively       
+#' @seealso gdscANOVA_glass_Ds
 gdscANOVA_glass_Ds<-function(x,y){
   md<-abs(mean(x)-mean(y))
   g1<-md/sd(x)
@@ -53,15 +54,24 @@ gdscANOVA_glass_Ds<-function(x,y){
   return(list(g1=g1,g2=g2))
 }
 
-
-#' Individual ANOVA test
-#' Calling this function requires the existance of the following global variables
-#' (created through the functions in Data_Manipulation_Library.R, Preamble.R, or loaded from relevant R objects):
-#'            IC50s = Matrix with IC50 values
-#'            InputFeatures = Structure containing the input features to be correlated with drug response
-#'            gdscANOVA.settings.featFactorPopulationTh = How many sample that are positive for a given feature must be present in order for the test to be performed
-#'            gdscANOVA.settings.includeMSI_Factor = Boolean variable specifying if the Microsatellite instability status of the samples should be included as co-factor
-#'            gdscANOVA.settings.MSIfactorPopulationTh = How many MicroSatellite instable samples must be present in order for the test to be performed
+#' @title Individual ANOVA test
+#' @author Francesco Iorio - \email{iorio@@ebi.ac.uk}
+#' @description
+#' \code{gdscANOVA_individualANOVA(DRUG_ID, FEATURE, display=TRUE, printTOfig=FALSE, PATH='', FN='', FDR=NA, OUTPUT_PATH='')} \cr\cr
+#' executes an individual ANOVA test to evaluate the statistical interaction between the IC50 values of a given drug, across cell lines, and an underlying
+#' binary factor. \cr\cr
+#' Calling this function requires the existance of the following global variables (described in  and created by the functions in
+#' \code{FI.GDSC.ANOVA.Preamble_Library.R}) \cr
+#' \itemize{
+#'   \item IC50s = Matrix with IC50 values
+#'   \item InputFeatures = List containing the input features to be correlated with drug response
+#'   \item GDSCANOVA_SETTINGS = List of settings variables
+#'}
+#' @usage A
+#' @param A
+#' @param A
+#' @return A        
+#' @seealso A
 #'            
 gdscANOVA_individualANOVA<-function(DRUG_ID,FEATURE,display=TRUE,printTOfig=FALSE,PATH='',FN='',FDR=NA,OUTPUT_PATH=''){
   

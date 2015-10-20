@@ -2,11 +2,28 @@
 % Please edit documentation in R/FI.GDSC.ANOVA.Statistics_library.R
 \name{gdscANOVA_glass_Ds}
 \alias{gdscANOVA_glass_Ds}
-\title{Effect size through Glass Ds}
+\title{Effect Size of a statistical interaction through individual Glass Delta}
 \usage{
-gdscANOVA_glass_Ds(x, y)
+gdscANOVA_glass_Ds(x,y)
+}
+\arguments{
+\item{x}{Numerical vector containing the variable observations corresponding to the positive values of the underlying factor.}
+
+\item{y}{Numerical vector containing the variable observations corresponding to the negative values of the underlying factor.}
+}
+\value{
+A list of two Glass Deltas, defined as the difference between the means of the two vector, divided by the standard deviations of the two groups
+respectively
 }
 \description{
-Effect size through Glass Ds
+\code{gdscANOVA_glass_Ds(x,y)} \cr\cr returns two numerical scores quantifying the effect sizes of the statistical interaction between a variable and an
+underlying binary factor. It takes in input two vectors containing a partition of the variable observations based on the corresponding factor value
+(positive or negative).
+}
+\author{
+Francesco Iorio - \email{iorio@ebi.ac.uk}
+}
+\seealso{
+gdscANOVA_glass_Ds
 }
 
