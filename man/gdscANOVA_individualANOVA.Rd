@@ -4,12 +4,24 @@
 \alias{gdscANOVA_individualANOVA}
 \title{Individual ANOVA test}
 \usage{
-A
+gdscANOVA_individualANOVA(DRUG_ID, FEATURE, display=TRUE, printTOfig=FALSE, PATH='', FN='', FDR=NA, OUTPUT_PATH='')
 }
 \arguments{
-\item{A}{}
+\item{DRUG_ID}{A string containing the identifier of the drug, whose IC50s must be tested (i.e. must be a row name of the \code{IC50s} matrix)}
 
-\item{A}{}
+\item{FEATURE}{}
+
+\item{display}{}
+
+\item{printTOfig}{}
+
+\item{PATH}{}
+
+\item{FN}{}
+
+\item{FDR}{}
+
+\item{OUTPUT_PATH}{}
 }
 \value{
 A
@@ -18,11 +30,12 @@ A
 \code{gdscANOVA_individualANOVA(DRUG_ID, FEATURE, display=TRUE, printTOfig=FALSE, PATH='', FN='', FDR=NA, OUTPUT_PATH='')} \cr\cr
 executes an individual ANOVA test to evaluate the statistical interaction between the IC50 values of a given drug, across cell lines, and an underlying
 binary factor. \cr\cr
-Calling this function requires the existance of the following global variables:\cr
+Calling this function requires the existance of the following global variables, described in \url{https://github.com/francescojm/FI.GDSC.ANOVA/wiki} and created by the functions in
+\code{FI.GDSC.ANOVA.Preamble_Library.R}: \cr
 \itemize{
   \item IC50s = Matrix with IC50 values
-  \item InputFeatures = Structure containing the input features to be correlated with drug response\cr
-  \item GDSCANOVA_SETTINGS = How many sample that are positive for a given feature must
+  \item InputFeatures = List containing the input features to be correlated with drug response
+  \item GDSCANOVA_SETTINGS = List of settings variables
 }
 }
 \author{

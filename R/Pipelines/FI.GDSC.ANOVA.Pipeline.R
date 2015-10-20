@@ -1,4 +1,4 @@
-#ANOVA_setting_file<-'../../Data/ANOVA_setting_files/FI.GDSC.ANOVA.Settings_file_template.csv'
+ANOVA_setting_file<-'../../Data/ANOVA_setting_files/FI.GDSC.ANOVA.Settings_file_template.csv'
 
 DATE<-Sys.Date()
 TIME<-Sys.time()
